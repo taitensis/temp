@@ -1,0 +1,83 @@
+---
+interface Props {
+  lang: 'fr' | 'en';
+}
+
+const { lang } = Astro.props;
+
+const translations = {
+    fr: {
+        siteName: 'Mes recettes préférées',
+        linksTitle: 'Liens Rapides',
+        legalTitle: 'Informations Légales',
+        contactTitle: 'Contactez-nous',
+        recipes: 'Recettes',
+        about: 'À propos',
+        terms: 'Conditions',
+        privacy: 'Confidentialité',
+    },
+    en: {
+        siteName: 'My favourite recipes',
+        linksTitle: 'Quick Links',
+        legalTitle: 'Legal Information',
+        contactTitle: 'Contact Us',
+        recipes: 'Recipes',
+        about: 'About',
+        terms: 'Terms',
+        privacy: 'Privacy',
+    },
+};
+
+const t = translations[lang];
+
+// Note: Vous auriez besoin d'une fonction pour générer les URLs localisées ici aussi.
+const getLocalizedUrl = (path: string) => `/${lang}${path}`;
+---
+
+<footer class="bg-card border-t mt-16">
+    <div class="container mx-auto px-4 py-12">
+        
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+            
+            
+            <div>
+                <h3 class="text-xl font-bold mb-4 text-primary">{t.siteName}</h3>
+                <p class="text-sm text-muted-foreground">© {new Date().getFullYear()}</p>
+            </div>
+
+            
+            <div>
+                <h4 class="font-semibold mb-4">{t.linksTitle}</h4>
+                <ul class="flex flex-col space-y-2 text-sm text-muted-foreground">
+                    <li><a href={getLocalizedUrl('/recipes')} class="hover:text-primary">{t.recipes}</a></li>
+                    <li><a href={getLocalizedUrl('/about')} class="hover:text-primary">{t.about}</a></li>
+                </ul>
+            </div>
+
+            
+            <div>
+                <h4 class="font-semibold mb-4">{t.legalTitle}</h4>
+                <ul class="flex flex-col space-y-2 text-sm text-muted-foreground">
+                    <li><a href={getLocalizedUrl('/terms')} class="hover:text-primary">{t.terms}</a></li>
+                    <li><a href={getLocalizedUrl('/privacy')} class="hover:text-primary">{t.privacy}</a></li>
+                </ul>
+            </div>
+
+            
+            <div>
+                <h4 class="font-semibold mb-4">{t.contactTitle}</h4>
+                <div class="flex space-x-4 text-muted-foreground">
+                    
+                    [Icone Social 1]
+                    [Icone Social 2]
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="pt-4 mt-4 border-t border-border flex justify-between items-center text-xs text-muted-foreground">
+            <p>Fait avec Astro et Supabase.</p>
+        </div>
+    </div>
+</footer>

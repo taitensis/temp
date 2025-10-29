@@ -1,15 +1,38 @@
-// @ts-check
-
-import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'astro/config';
-
 import react from '@astrojs/react';
+import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  vite: {
-      plugins: [tailwindcss()],
-	},
+  site: 'https://taitensis.github.io',
+  base: '/nourriture-quotidienne', // repo
+
+  i18n: {
+    locales: ['en', 'fr'],
+    defaultLocale: 'en',
+    routing: {
+      prefixDefaultLocale: true,
+    },
+  },
 
   integrations: [react()],
+
+  vite: {
+    plugins: [tailwindcss()],
+  },
+
+  // Output mode for GitHub Pages
+  output: 'static',
+
+  // Build configuration
+  build: {
+    assets: '_assets', // Keeps assets organized
+  },
+
+  // Image optimization
+  image: {
+    service: {
+      entrypoint: 'astro/assets/services/sharp',
+    },
+  },
 });

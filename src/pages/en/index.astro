@@ -1,0 +1,82 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import RecipeCard from "@/components/RecipeCard.astro";
+import FilterDrawer from "@/components/FilterDrawer.astro";
+import RecipeFilters from "@/components/RecipeFilters.astro";
+import { getRecipes, getRecipesBySeason } from "@/lib/supabase";
+
+// Assumons que cette page est la version anglaise
+const lang = 'en'; 
+
+const featuredRecipes = await getRecipes({ limit: 6 });
+const heroRecipe = featuredRecipes[0];
+const otherRecipes = featuredRecipes.slice(1);
+
+const currentMonth = new Date().getMonth();
+const currentSeason =
+    currentMonth >= 3 && currentMonth <= 5 ? 'spring' :
+    currentMonth >= 6 && currentMonth <= 8 ? 'summer' :
+    currentMonth >= 9 && currentMonth <= 11 ? 'autumn' : 'winter';
+
+const seasonRecipes = await getRecipesBySeason(currentSeason);
+
+// ⚠️ Assurez-vous de passer la langue à BaseLayout
+---
+
+<BaseLayout
+    title="Home"
+    description="Discover my favourite recipes!"
+    lang={lang} 
+>
+    
+    {/* 💡 CONTENEUR PRINCIPAL DE LA PAGE : 
+         Grid 1 colonne par défaut, Grid 2 colonnes (Sidebar + Contenu) sur lg. */}
+    <div class="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-x-8 gap-y-12">
+        
+        {/* -------------------- 1. BARRE LATÉRALE (SIDEBAR) -------------------- */}
+        {/* Apparaît en haut sur mobile, à gauche sur desktop */}
+        <aside class="lg:col-start-1 lg:col-end-2">
+            <FilterDrawer lang={lang} />
+
+        {/* Affichage Desktop : La Sidebar statique (cachée sur mobile) */}
+        <div class="hidden lg:block space-y-6 sticky top-24">
+            <h3 class="text-2xl font-semibold mb-4">Rechercher & Filtrer</h3>
+            
+            {/* Le contenu réel des filtres pour le desktop */}
+            <RecipeFilters lang={lang} />
+        </div>
+    </aside>
+
+        {/* -------------------- 2. ZONE DE CONTENU (MAGAZINE) -------------------- */}
+        {/* Apparaît en bas sur mobile, à droite sur desktop */}
+        <div class="lg:col-start-2 lg:col-end-3">
+
+            {/* A. SECTION VEDETTE (MAGAZINE LAYOUT) */}
+            <section class="mb-12">
+                <h2 class="text-4xl font-bold mb-8">Featured Recipes</h2>
+        
+                {/* Grille de cartes : 3 colonnes, avec la première carte sur 2 colonnes */}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* Carte HERO s'étendant sur 2 colonnes (effet magazine) */}
+                    <RecipeCard recipe={heroRecipe} variant="hero" lang={lang} className="md:col-span-2" /> 
+        
+                    {otherRecipes.map((recipe) => (
+                        // Les autres cartes restent en 1 colonne
+                        <RecipeCard recipe={recipe} variant="default" lang={lang} />
+                    ))}
+                </div>
+            </section>
+
+            {/* B. SECTION SAISONNIÈRE (LAYOUT STANDARD) */}
+            <section>
+                <h2 class="text-4xl font-bold mb-8">Seasonal Recipes</h2>
+        
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {seasonRecipes.map((recipe) => (
+                        <RecipeCard recipe={recipe} variant="default" lang={lang} />
+                    ))}
+                </div>
+            </section>
+        </div>
+    </div>
+</BaseLayout>

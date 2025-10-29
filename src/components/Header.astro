@@ -1,0 +1,66 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n';
+
+interface Props {
+  lang: 'en' | 'fr';
+}
+
+const { lang } = Astro.props;
+
+const navLinks = [
+  { href: '/recipes', text: lang === 'fr' ? 'Recettes' : 'Recipes' },
+  { href: '/seasonal', text: lang === 'fr' ? 'Saisonnier' : 'Seasonal' },
+  { href: '/about', text: lang === 'fr' ? 'À propos' : 'About' },
+];
+
+const getNavUrl = (path: string) => getRelativeLocaleUrl(lang, path);
+
+const siteName = 'Mes recettes préférées'; 
+const siteBaseUrl = getRelativeLocaleUrl(lang, '/');
+
+// const toggleThemePath = '#'; // Lien pour changer le thème
+const switchLangPath = lang === 'fr' ? getRelativeLocaleUrl('en', Astro.url.pathname) : getRelativeLocaleUrl('fr', Astro.url.pathname);
+
+---
+<header class="sticky top-0 z-50 bg-background/90 backdrop-blur-sm border-b">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+        
+        <a href={siteBaseUrl} class="text-2xl font-bold tracking-tight text-primary hover:opacity-80 transition-opacity">
+            {siteName}
+        </a>
+
+        
+        <nav class="hidden md:flex flex-grow justify-center">
+            <ul class="flex space-x-6">
+                {navLinks.map((link) => (
+                    <li>
+                        <a href={getNavUrl(link.href)} 
+                           class="text-sm font-medium hover:text-primary transition-colors">
+                            {link.text}
+                        </a>
+                    </li>
+                ))}
+            </ul>
+        </nav>
+
+        
+        <div class="flex items-center space-x-4">
+            
+            
+            <a href={switchLangPath} 
+               class="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                {lang === 'fr' ? 'EN' : 'FR'}
+            </a>
+            
+            
+            <button aria-label="Toggle Theme" class="p-2 rounded-full hover:bg-muted transition-colors">
+                [Icone Thème]
+            </button>
+            
+            
+            <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold">
+                M
+            </div>
+        </div>
+    </div>
+</header>

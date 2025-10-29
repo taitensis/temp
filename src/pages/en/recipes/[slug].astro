@@ -1,0 +1,46 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import RecipeCard from "@/components/RecipeCard.astro";
+import { getRecipes, getRecipesBySeason } from "@/lib/supabase";
+
+const featuredRecipes = await getRecipes({ limit: 6 });
+const heroRecipe = featuredRecipes[0];
+const otherRecipes = featuredRecipes.slice(1);
+
+const currentMonth = new Date().getMonth();
+const currentSeason =
+    currentMonth >= 3 && currentMonth <= 5 ? 'spring' :
+    currentMonth >= 6 && currentMonth <= 8 ? 'summer' :
+    currentMonth >= 9 && currentMonth <= 11 ? 'autumn' : 'winter';
+
+const seasonRecipes = await getRecipesBySeason(currentSeason);
+---
+
+<BaseLayout
+    title="Home"
+    description="Discover my favourite recipes!"
+>
+    <main class="container mx-auto px-4 py-8">
+        <section>
+            <h2 class="text-4xl font-bold mb-8">Featured Recipes</h2>
+    
+            <div class="grid grid-cols 1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <RecipeCard recipe={heroRecipe} variant="hero" />
+    
+                {otherRecipes.map((recipe) => (
+                    <RecipeCard recipe={recipe} variant="default" />
+                ))}
+            </div>
+        </section>
+
+        <section>
+            <h2 class="text-4xl font-bold mb-8">Seasonal Recipes</h2>
+    
+            <div class="grid grid-cols 1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {seasonRecipes.map((recipe) => (
+                    <RecipeCard recipe={recipe} variant="default" />
+                ))}
+            </div>
+        </section>
+    </main>
+    </BaseLayout>
