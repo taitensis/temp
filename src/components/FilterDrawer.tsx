@@ -20,12 +20,61 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Search } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 interface FilterDrawerProps {
   lang: 'fr' | 'en';
+  initialValues?: {
+    search?: string;
+    difficulty?: string;
+    maxTime?: string;
+    tags?: string[];
+  };
 }
 
-export default function FilterDrawer({ lang }: FilterDrawerProps) {
+export default function FilterDrawer({ lang, initialValues }: FilterDrawerProps) {
+  const [filters, setFilters] = useState({
+    search: initialValues?.search || '',
+    difficulty: initialValues?.difficulty || '',
+    maxTime: initialValues?.maxTime || '',
+    tags: initialValues?.tags || ([] as string[]),
+  });
+
+  // Read from URL on mount
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const params = new URLSearchParams(window.location.search);
+    setFilters({
+      search: params.get('search') || '',
+      difficulty: params.get('difficulty') || '',
+      maxTime: params.get('maxTime') || '',
+      tags: params.getAll('tags'),
+    });
+  }, []);
+
+  const handleApplyFilters = () => {
+    const params = new URLSearchParams();
+    if (filters.search) params.set('search', filters.search);
+    if (filters.difficulty) params.set('difficulty', filters.difficulty);
+    if (filters.maxTime) params.set('maxTime', filters.maxTime);
+    filters.tags.forEach((tag) => params.append('tags', tag));
+
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.location.href = newUrl;
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFilters((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleTagChange = (tagId: string, checked: boolean) => {
+    setFilters((prev) => ({
+      ...prev,
+      tags: checked ? [...prev.tags, tagId] : prev.tags.filter((t) => t !== tagId),
+    }));
+  };
+
   const t = {
     trigger: lang === 'fr' ? 'Filtrer les Recettes' : 'Filter Recipes',
     title: lang === 'fr' ? 'Options de Filtrage' : 'Filter Options',
@@ -71,26 +120,32 @@ export default function FilterDrawer({ lang }: FilterDrawerProps) {
             </DrawerHeader>
 
             <div className="p-4 space-y-4">
-              <form className="space-y-6">
+              <div className="space-y-6">
                 {/* Search */}
                 <div className="space-y-2">
-                  <Label htmlFor="search">{t.searchPlaceholder}</Label>
+                  <Label htmlFor="drawer-search">{t.searchPlaceholder}</Label>
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
-                      id="search"
+                      id="drawer-search"
                       name="search"
                       placeholder={t.searchPlaceholder}
                       className="pl-9"
+                      value={filters.search}
+                      onChange={(e) => handleInputChange('search', e.target.value)}
                     />
                   </div>
                 </div>
 
                 {/* Difficulty */}
                 <div className="space-y-2">
-                  <Label htmlFor="difficulty">{t.difficultyLabel}</Label>
-                  <Select name="difficulty">
-                    <SelectTrigger id="difficulty">
+                  <Label htmlFor="drawer-difficulty">{t.difficultyLabel}</Label>
+                  <Select
+                    name="difficulty"
+                    value={filters.difficulty}
+                    onValueChange={(value) => handleInputChange('difficulty', value)}
+                  >
+                    <SelectTrigger id="drawer-difficulty">
                       <SelectValue placeholder={t.difficultyLabel} />
                     </SelectTrigger>
                     <SelectContent>
@@ -105,15 +160,17 @@ export default function FilterDrawer({ lang }: FilterDrawerProps) {
 
                 {/* Max Time */}
                 <div className="space-y-2">
-                  <Label htmlFor="maxTime">{t.timeLabel}</Label>
+                  <Label htmlFor="drawer-maxTime">{t.timeLabel}</Label>
                   <div className="flex items-center space-x-2">
                     <Input
-                      id="maxTime"
+                      id="drawer-maxTime"
                       name="maxTime"
                       type="number"
                       placeholder="60"
                       min="5"
                       max="240"
+                      value={filters.maxTime}
+                      onChange={(e) => handleInputChange('maxTime', e.target.value)}
                     />
                     <span className="text-sm text-muted-foreground">
                       {lang === 'fr' ? 'minutes' : 'minutes'}
@@ -129,24 +186,29 @@ export default function FilterDrawer({ lang }: FilterDrawerProps) {
                       <div key={tag.id} className="flex items-center space-x-3">
                         <input
                           type="checkbox"
-                          id={`tag-${tag.id}`}
+                          id={`drawer-tag-${tag.id}`}
                           name="tags"
                           value={tag.id}
+                          checked={filters.tags.includes(tag.id)}
+                          onChange={(e) => handleTagChange(tag.id, e.target.checked)}
                           className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                         />
-                        <Label htmlFor={`tag-${tag.id}`} className="font-normal cursor-pointer">
+                        <Label
+                          htmlFor={`drawer-tag-${tag.id}`}
+                          className="font-normal cursor-pointer"
+                        >
                           {tag.name}
                         </Label>
                       </div>
                     ))}
                   </div>
                 </div>
-              </form>
+              </div>
             </div>
 
             <DrawerFooter>
               <DrawerClose asChild>
-                <Button>{t.apply}</Button>
+                <Button onClick={handleApplyFilters}>{t.apply}</Button>
               </DrawerClose>
             </DrawerFooter>
           </div>
