@@ -23,6 +23,65 @@ export type Database = {
         };
         Relationships: [];
       };
+      categories: {
+        Row: {
+          created_at: string | null;
+          icon: string | null;
+          id: string;
+          name: string;
+          position: number | null;
+          slug: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          icon?: string | null;
+          id?: string;
+          name: string;
+          position?: number | null;
+          slug: string;
+        };
+        Update: {
+          created_at?: string | null;
+          icon?: string | null;
+          id?: string;
+          name?: string;
+          position?: number | null;
+          slug?: string;
+        };
+        Relationships: [];
+      };
+      category_translations: {
+        Row: {
+          category_id: string | null;
+          description: string | null;
+          id: string;
+          lang: Database['public']['Enums']['lang'];
+          name: string;
+        };
+        Insert: {
+          category_id?: string | null;
+          description?: string | null;
+          id?: string;
+          lang: Database['public']['Enums']['lang'];
+          name: string;
+        };
+        Update: {
+          category_id?: string | null;
+          description?: string | null;
+          id?: string;
+          lang?: Database['public']['Enums']['lang'];
+          name?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'category_translations_category_id_fkey';
+            columns: ['category_id'];
+            isOneToOne: false;
+            referencedRelation: 'categories';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       ingredient_translations: {
         Row: {
           id: string;
@@ -70,6 +129,56 @@ export type Database = {
         };
         Relationships: [];
       };
+      recipe_categories: {
+        Row: {
+          category_id: string | null;
+          id: string;
+          is_primary: boolean | null;
+          recipe_id: string | null;
+        };
+        Insert: {
+          category_id?: string | null;
+          id?: string;
+          is_primary?: boolean | null;
+          recipe_id?: string | null;
+        };
+        Update: {
+          category_id?: string | null;
+          id?: string;
+          is_primary?: boolean | null;
+          recipe_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'recipe_categories_category_id_fkey';
+            columns: ['category_id'];
+            isOneToOne: false;
+            referencedRelation: 'categories';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'recipe_categories_recipe_id_fkey';
+            columns: ['recipe_id'];
+            isOneToOne: false;
+            referencedRelation: 'recipe_cards_view';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'recipe_categories_recipe_id_fkey';
+            columns: ['recipe_id'];
+            isOneToOne: false;
+            referencedRelation: 'recipes';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'recipe_categories_recipe_id_fkey';
+            columns: ['recipe_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_full_recipe';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       recipe_ingredients: {
         Row: {
           created_at: string | null;
@@ -110,6 +219,13 @@ export type Database = {
             columns: ['ingredient_id'];
             isOneToOne: false;
             referencedRelation: 'ingredients';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'recipe_ingredients_recipe_id_fkey';
+            columns: ['recipe_id'];
+            isOneToOne: false;
+            referencedRelation: 'recipe_cards_view';
             referencedColumns: ['id'];
           },
           {
@@ -182,6 +298,13 @@ export type Database = {
             foreignKeyName: 'recipe_nutrition_recipe_id_fkey';
             columns: ['recipe_id'];
             isOneToOne: true;
+            referencedRelation: 'recipe_cards_view';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'recipe_nutrition_recipe_id_fkey';
+            columns: ['recipe_id'];
+            isOneToOne: true;
             referencedRelation: 'recipes';
             referencedColumns: ['id'];
           },
@@ -189,6 +312,55 @@ export type Database = {
             foreignKeyName: 'recipe_nutrition_recipe_id_fkey';
             columns: ['recipe_id'];
             isOneToOne: true;
+            referencedRelation: 'v_full_recipe';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      recipe_ratings: {
+        Row: {
+          comment: string | null;
+          created_at: string | null;
+          id: string;
+          rating: number | null;
+          recipe_id: string | null;
+          user_id: string | null;
+        };
+        Insert: {
+          comment?: string | null;
+          created_at?: string | null;
+          id?: string;
+          rating?: number | null;
+          recipe_id?: string | null;
+          user_id?: string | null;
+        };
+        Update: {
+          comment?: string | null;
+          created_at?: string | null;
+          id?: string;
+          rating?: number | null;
+          recipe_id?: string | null;
+          user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'recipe_ratings_recipe_id_fkey';
+            columns: ['recipe_id'];
+            isOneToOne: false;
+            referencedRelation: 'recipe_cards_view';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'recipe_ratings_recipe_id_fkey';
+            columns: ['recipe_id'];
+            isOneToOne: false;
+            referencedRelation: 'recipes';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'recipe_ratings_recipe_id_fkey';
+            columns: ['recipe_id'];
+            isOneToOne: false;
             referencedRelation: 'v_full_recipe';
             referencedColumns: ['id'];
           },
@@ -253,6 +425,13 @@ export type Database = {
             foreignKeyName: 'recipe_steps_recipe_id_fkey';
             columns: ['recipe_id'];
             isOneToOne: false;
+            referencedRelation: 'recipe_cards_view';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'recipe_steps_recipe_id_fkey';
+            columns: ['recipe_id'];
+            isOneToOne: false;
             referencedRelation: 'recipes';
             referencedColumns: ['id'];
           },
@@ -285,6 +464,13 @@ export type Database = {
           tag_id?: string | null;
         };
         Relationships: [
+          {
+            foreignKeyName: 'recipe_tags_recipe_id_fkey';
+            columns: ['recipe_id'];
+            isOneToOne: false;
+            referencedRelation: 'recipe_cards_view';
+            referencedColumns: ['id'];
+          },
           {
             foreignKeyName: 'recipe_tags_recipe_id_fkey';
             columns: ['recipe_id'];
@@ -335,6 +521,13 @@ export type Database = {
             foreignKeyName: 'recipe_times_recipe_id_fkey';
             columns: ['recipe_id'];
             isOneToOne: false;
+            referencedRelation: 'recipe_cards_view';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'recipe_times_recipe_id_fkey';
+            columns: ['recipe_id'];
+            isOneToOne: false;
             referencedRelation: 'recipes';
             referencedColumns: ['id'];
           },
@@ -381,6 +574,13 @@ export type Database = {
             foreignKeyName: 'recipe_translations_recipe_id_fkey';
             columns: ['recipe_id'];
             isOneToOne: false;
+            referencedRelation: 'recipe_cards_view';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'recipe_translations_recipe_id_fkey';
+            columns: ['recipe_id'];
+            isOneToOne: false;
             referencedRelation: 'recipes';
             referencedColumns: ['id'];
           },
@@ -395,46 +595,73 @@ export type Database = {
       };
       recipes: {
         Row: {
+          cook_time: number | null;
           created_at: string | null;
+          created_by: string | null;
           description: string | null;
+          difficulty: string | null;
           featured: boolean | null;
           id: string;
           image_url: string | null;
+          prep_time: number | null;
+          rating: number | null;
+          rating_count: number | null;
           season: string[] | null;
           serving_type: string | null;
           servings: number | null;
           slug: string;
+          source_url: string | null;
           title: string;
           total_time: number | null;
           updated_at: string | null;
+          video_url: string | null;
+          view_count: number | null;
         };
         Insert: {
+          cook_time?: number | null;
           created_at?: string | null;
+          created_by?: string | null;
           description?: string | null;
+          difficulty?: string | null;
           featured?: boolean | null;
           id?: string;
           image_url?: string | null;
+          prep_time?: number | null;
+          rating?: number | null;
+          rating_count?: number | null;
           season?: string[] | null;
           serving_type?: string | null;
           servings?: number | null;
           slug: string;
+          source_url?: string | null;
           title: string;
           total_time?: number | null;
           updated_at?: string | null;
+          video_url?: string | null;
+          view_count?: number | null;
         };
         Update: {
+          cook_time?: number | null;
           created_at?: string | null;
+          created_by?: string | null;
           description?: string | null;
+          difficulty?: string | null;
           featured?: boolean | null;
           id?: string;
           image_url?: string | null;
+          prep_time?: number | null;
+          rating?: number | null;
+          rating_count?: number | null;
           season?: string[] | null;
           serving_type?: string | null;
           servings?: number | null;
           slug?: string;
+          source_url?: string | null;
           title?: string;
           total_time?: number | null;
           updated_at?: string | null;
+          video_url?: string | null;
+          view_count?: number | null;
         };
         Relationships: [];
       };
@@ -503,8 +730,81 @@ export type Database = {
         };
         Relationships: [];
       };
+      user_favorites: {
+        Row: {
+          created_at: string | null;
+          id: string;
+          recipe_id: string | null;
+          user_id: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: string;
+          recipe_id?: string | null;
+          user_id?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: string;
+          recipe_id?: string | null;
+          user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'user_favorites_recipe_id_fkey';
+            columns: ['recipe_id'];
+            isOneToOne: false;
+            referencedRelation: 'recipe_cards_view';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'user_favorites_recipe_id_fkey';
+            columns: ['recipe_id'];
+            isOneToOne: false;
+            referencedRelation: 'recipes';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'user_favorites_recipe_id_fkey';
+            columns: ['recipe_id'];
+            isOneToOne: false;
+            referencedRelation: 'v_full_recipe';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Views: {
+      recipe_cards_view: {
+        Row: {
+          avg_rating: number | null;
+          calories: number | null;
+          cook_time: number | null;
+          created_at: string | null;
+          created_by: string | null;
+          description: string | null;
+          difficulty: string | null;
+          favorite_count: number | null;
+          featured: boolean | null;
+          id: string | null;
+          image_url: string | null;
+          prep_time: number | null;
+          protein: number | null;
+          rating: number | null;
+          rating_count: number | null;
+          season: string[] | null;
+          serving_type: string | null;
+          servings: number | null;
+          slug: string | null;
+          source_url: string | null;
+          title: string | null;
+          total_time: number | null;
+          updated_at: string | null;
+          video_url: string | null;
+          view_count: number | null;
+        };
+        Relationships: [];
+      };
       v_full_recipe: {
         Row: {
           calories: number | null;
@@ -528,7 +828,8 @@ export type Database = {
       };
     };
     Functions: {
-      [_ in never]: never;
+      show_limit: { Args: never; Returns: number };
+      show_trgm: { Args: { '': string }; Returns: string[] };
     };
     Enums: {
       lang: 'en' | 'es' | 'fr' | 'nl';

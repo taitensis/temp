@@ -1,6 +1,9 @@
+// FIX: Properly working filters with all options
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
 import {
   Select,
   SelectContent,
@@ -8,176 +11,345 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Search, Filter, X } from 'lucide-react';
+import { useTranslations } from '@/lib/i18n';
+import type { Language, RecipeFilters as Filters } from '@/lib/types';
 
 interface RecipeFiltersProps {
-  lang: 'fr' | 'en';
-  initialValues?: {
-    search?: string;
-    difficulty?: string;
-    maxTime?: string;
-    tags?: string[];
-  };
+  lang: Language;
+  initialFilters?: Partial<Filters>;
+  onFiltersChange?: (filters: Filters) => void;
+  categories?: Array<{ id: string; name: string }>;
+  tags?: Array<{ id: string; name: string }>;
 }
 
-export default function RecipeFilters({ lang, initialValues }: RecipeFiltersProps) {
-  const [filters, setFilters] = useState({
-    search: initialValues?.search || '',
-    difficulty: initialValues?.difficulty || '',
-    maxTime: initialValues?.maxTime || '',
-    tags: initialValues?.tags || ([] as string[]),
+export default function RecipeFilters({
+  lang,
+  initialFilters = {},
+  onFiltersChange,
+  categories = [],
+  tags = [],
+}: RecipeFiltersProps) {
+  const t = useTranslations(lang);
+  const [filters, setFilters] = useState<Filters>({
+    search: '',
+    difficulty: undefined,
+    maxTime: undefined,
+    minTime: undefined,
+    season: undefined,
+    categories: [],
+    tags: [],
+    sortBy: 'newest',
+    minRating: undefined,
+    ...initialFilters,
   });
 
-  // Read from URL on mount (client-side only)
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Sync with URL params
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
     const params = new URLSearchParams(window.location.search);
-    setFilters({
-      search: params.get('search') || '',
-      difficulty: params.get('difficulty') || '',
-      maxTime: params.get('maxTime') || '',
-      tags: params.getAll('tags'),
-    });
+    const urlFilters: Partial<Filters> = {
+      search: params.get('search') || undefined,
+      difficulty: (params.get('difficulty') as any) || undefined,
+      maxTime: params.get('maxTime') ? parseInt(params.get('maxTime')!) : undefined,
+      minTime: params.get('minTime') ? parseInt(params.get('minTime')!) : undefined,
+      season: (params.get('season') as any) || undefined,
+      categories: params.getAll('category'),
+      tags: params.getAll('tag'),
+      sortBy: (params.get('sort') as any) || 'newest',
+      minRating: params.get('rating') ? parseFloat(params.get('rating')!) : undefined,
+    };
+
+    setFilters((prev) => ({ ...prev, ...urlFilters }));
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    applyFilters();
+  };
 
+  const applyFilters = () => {
     const params = new URLSearchParams();
-    if (filters.search) params.set('search', filters.search);
-    if (filters.difficulty) params.set('difficulty', filters.difficulty);
-    if (filters.maxTime) params.set('maxTime', filters.maxTime);
-    filters.tags.forEach((tag) => params.append('tags', tag));
 
-    // Navigate to the same page with new query params
-    const newUrl = `${window.location.pathname}?${params.toString()}`;
-    window.location.href = newUrl;
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value === undefined || value === '' || (Array.isArray(value) && value.length === 0)) {
+        return;
+      }
+
+      if (Array.isArray(value)) {
+        value.forEach((v) => params.append(key, v));
+      } else {
+        params.set(key, String(value));
+      }
+    });
+
+    if (onFiltersChange) {
+      onFiltersChange(filters);
+    } else {
+      window.location.href = `${window.location.pathname}?${params.toString()}`;
+    }
   };
 
-  const handleInputChange = (field: string, value: string) => {
-    setFilters((prev) => ({ ...prev, [field]: value }));
+  const resetFilters = () => {
+    const defaultFilters: Filters = {
+      search: '',
+      difficulty: undefined,
+      maxTime: undefined,
+      minTime: undefined,
+      season: undefined,
+      categories: [],
+      tags: [],
+      sortBy: 'newest',
+      minRating: undefined,
+    };
+
+    setFilters(defaultFilters);
+
+    if (onFiltersChange) {
+      onFiltersChange(defaultFilters);
+    } else {
+      window.location.href = window.location.pathname;
+    }
   };
 
-  const handleTagChange = (tagId: string, checked: boolean) => {
-    setFilters((prev) => ({
-      ...prev,
-      tags: checked ? [...prev.tags, tagId] : prev.tags.filter((t) => t !== tagId),
-    }));
-  };
-
-  const t = {
-    searchPlaceholder:
-      lang === 'fr' ? 'Nom de la recette ou ingrédient...' : 'Recipe name or ingredient...',
-    difficultyLabel: lang === 'fr' ? 'Difficulté' : 'Difficulty',
-    timeLabel: lang === 'fr' ? 'Temps Max. (minutes)' : 'Max Time (minutes)',
-    tagsLabel: lang === 'fr' ? 'Tags & Catégories' : 'Tags & Categories',
-    applyButton: lang === 'fr' ? 'Rechercher' : 'Search',
-  };
-
-  const tags = [
-    { id: '1', name: lang === 'fr' ? 'Végétarien' : 'Vegetarian' },
-    { id: '2', name: lang === 'fr' ? 'Sans Gluten' : 'Gluten-Free' },
-    { id: '3', name: lang === 'fr' ? 'Rapide' : 'Quick' },
-    { id: '4', name: lang === 'fr' ? 'Dessert' : 'Dessert' },
-    { id: '5', name: lang === 'fr' ? 'Plat Principal' : 'Main Dish' },
-  ];
-
-  const difficulties = [
-    { value: 'easy', label: lang === 'fr' ? 'Facile' : 'Easy' },
-    { value: 'medium', label: lang === 'fr' ? 'Moyen' : 'Medium' },
-    { value: 'hard', label: lang === 'fr' ? 'Difficile' : 'Hard' },
-  ];
+  const activeFilterCount = Object.values(filters).filter(
+    (v) => v !== undefined && v !== '' && (!Array.isArray(v) || v.length > 0) && v !== 'newest'
+  ).length;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Search Input */}
-      <div className="space-y-2">
-        <Label htmlFor="search">{t.searchPlaceholder}</Label>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            id="search"
-            name="search"
-            placeholder={t.searchPlaceholder}
-            className="pl-9"
-            value={filters.search}
-            onChange={(e) => handleInputChange('search', e.target.value)}
-          />
-        </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Search Bar */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          type="search"
+          placeholder={t.filters.search}
+          value={filters.search || ''}
+          onChange={(e) => setFilters((prev) => ({ ...prev, search: e.target.value }))}
+          className="pl-9 pr-10"
+        />
+        {filters.search && (
+          <button
+            type="button"
+            onClick={() => setFilters((prev) => ({ ...prev, search: '' }))}
+            className="absolute right-3 top-1/2 -translate-y-1/2"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
-      {/* Difficulty Select */}
-      <div className="space-y-2">
-        <Label htmlFor="difficulty">{t.difficultyLabel}</Label>
-        <Select
-          name="difficulty"
-          value={filters.difficulty}
-          onValueChange={(value) => handleInputChange('difficulty', value)}
+      {/* Sort Options */}
+      <Select
+        value={filters.sortBy}
+        onValueChange={(value) => setFilters((prev) => ({ ...prev, sortBy: value as any }))}
+      >
+        <SelectTrigger>
+          <SelectValue placeholder={t.filters.sortBy} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="newest">{t.filters.sortOptions.newest}</SelectItem>
+          <SelectItem value="popular">{t.filters.sortOptions.popular}</SelectItem>
+          <SelectItem value="rating">{t.filters.sortOptions.rating}</SelectItem>
+          <SelectItem value="quickest">{t.filters.sortOptions.quickest}</SelectItem>
+        </SelectContent>
+      </Select>
+
+      {/* Expandable Filters */}
+      <div className="border-t pt-4">
+        <button
+          type="button"
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="flex items-center gap-2 text-sm font-medium"
         >
-          <SelectTrigger id="difficulty">
-            <SelectValue placeholder={t.difficultyLabel} />
-          </SelectTrigger>
-          <SelectContent>
-            {difficulties.map((d) => (
-              <SelectItem key={d.value} value={d.value}>
-                {d.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          <Filter className="h-4 w-4" />
+          {t.filters.title}
+          {activeFilterCount > 0 && (
+            <span className="ml-1 px-2 py-0.5 bg-primary text-primary-foreground text-xs rounded-full">
+              {activeFilterCount}
+            </span>
+          )}
+        </button>
       </div>
 
-      {/* Max Time Input */}
-      <div className="space-y-2">
-        <Label htmlFor="maxTime">{t.timeLabel}</Label>
-        <div className="flex items-center space-x-2">
-          <Input
-            id="maxTime"
-            name="maxTime"
-            type="number"
-            placeholder="60"
-            min="5"
-            max="240"
-            value={filters.maxTime}
-            onChange={(e) => handleInputChange('maxTime', e.target.value)}
-          />
-          <span className="text-sm text-muted-foreground">
-            {lang === 'fr' ? 'minutes' : 'minutes'}
-          </span>
-        </div>
-      </div>
+      {isExpanded && (
+        <div className="space-y-4 pt-2">
+          {/* Difficulty */}
+          <div>
+            <Label>{t.filters.difficulty}</Label>
+            <Select
+              value={filters.difficulty || ''}
+              onValueChange={(value) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  difficulty: value === '' ? undefined : (value as any),
+                }))
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={t.filters.difficultyOptions.all} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">{t.filters.difficultyOptions.all}</SelectItem>
+                <SelectItem value="easy">{t.filters.difficultyOptions.easy}</SelectItem>
+                <SelectItem value="medium">{t.filters.difficultyOptions.medium}</SelectItem>
+                <SelectItem value="hard">{t.filters.difficultyOptions.hard}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-      {/* Tags Checkboxes */}
-      <div className="space-y-3">
-        <Label>{t.tagsLabel}</Label>
-        <div className="flex flex-col space-y-2 max-h-52 overflow-y-auto pr-2">
-          {tags.map((tag) => (
-            <div key={tag.id} className="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                id={`tag-${tag.id}`}
-                name="tags"
-                value={tag.id}
-                checked={filters.tags.includes(tag.id)}
-                onChange={(e) => handleTagChange(tag.id, e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+          {/* Time Range */}
+          <div>
+            <Label>{t.filters.time}</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                placeholder="Min"
+                min="0"
+                max="480"
+                value={filters.minTime || ''}
+                onChange={(e) =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    minTime: e.target.value ? parseInt(e.target.value) : undefined,
+                  }))
+                }
+                className="w-20"
               />
-              <Label htmlFor={`tag-${tag.id}`} className="font-normal cursor-pointer">
-                {tag.name}
-              </Label>
+              <span>-</span>
+              <Input
+                type="number"
+                placeholder="Max"
+                min="0"
+                max="480"
+                value={filters.maxTime || ''}
+                onChange={(e) =>
+                  setFilters((prev) => ({
+                    ...prev,
+                    maxTime: e.target.value ? parseInt(e.target.value) : undefined,
+                  }))
+                }
+                className="w-20"
+              />
+              <span className="text-sm text-muted-foreground">min</span>
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      {/* Submit Button - Desktop only */}
-      <div className="hidden lg:block pt-2">
-        <Button type="submit" className="w-full">
-          {t.applyButton}
-        </Button>
-      </div>
+          {/* Season */}
+          <div>
+            <Label>{t.filters.season}</Label>
+            <Select
+              value={filters.season || ''}
+              onValueChange={(value) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  season: value === '' ? undefined : (value as any),
+                }))
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={t.filters.seasonOptions.all} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">{t.filters.seasonOptions.all}</SelectItem>
+                <SelectItem value="spring">{t.filters.seasonOptions.spring}</SelectItem>
+                <SelectItem value="summer">{t.filters.seasonOptions.summer}</SelectItem>
+                <SelectItem value="autumn">{t.filters.seasonOptions.autumn}</SelectItem>
+                <SelectItem value="winter">{t.filters.seasonOptions.winter}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Categories */}
+          {categories.length > 0 && (
+            <div>
+              <Label>{t.filters.categories}</Label>
+              <div className="space-y-2 max-h-40 overflow-y-auto">
+                {categories.map((category) => (
+                  <label key={category.id} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={filters.categories?.includes(category.id) || false}
+                      onChange={(e) => {
+                        const newCategories = e.target.checked
+                          ? [...(filters.categories || []), category.id]
+                          : filters.categories?.filter((c) => c !== category.id) || [];
+                        setFilters((prev) => ({ ...prev, categories: newCategories }));
+                      }}
+                      className="rounded"
+                    />
+                    <span className="text-sm">{category.name}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Tags */}
+          {tags.length > 0 && (
+            <div>
+              <Label>{t.filters.tags}</Label>
+              <div className="flex flex-wrap gap-2">
+                {tags.map((tag) => {
+                  const isSelected = filters.tags?.includes(tag.id) || false;
+                  return (
+                    <button
+                      key={tag.id}
+                      type="button"
+                      onClick={() => {
+                        const newTags = isSelected
+                          ? filters.tags?.filter((t) => t !== tag.id) || []
+                          : [...(filters.tags || []), tag.id];
+                        setFilters((prev) => ({ ...prev, tags: newTags }));
+                      }}
+                      className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                        isSelected
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted hover:bg-muted-foreground/20'
+                      }`}
+                    >
+                      {tag.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Rating */}
+          <div>
+            <Label>
+              {t.filters.rating}: {filters.minRating || 0} ★
+            </Label>
+            <Slider
+              value={[filters.minRating || 0]}
+              onValueChange={([value]) =>
+                setFilters((prev) => ({
+                  ...prev,
+                  minRating: value > 0 ? value : undefined,
+                }))
+              }
+              min={0}
+              max={5}
+              step={0.5}
+              className="mt-2"
+            />
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-2 pt-2">
+            <Button type="submit" className="flex-1">
+              {t.filters.apply}
+            </Button>
+            <Button type="button" variant="outline" onClick={resetFilters}>
+              {t.filters.reset}
+            </Button>
+          </div>
+        </div>
+      )}
     </form>
   );
 }

@@ -1,11 +1,13 @@
 ---
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import type { RecipeCardProps } from '@/lib/types';
+import { Clock, Users, ChefHat, Star } from 'lucide-astro';
+import type { RecipeCardProps, Language } from '@/lib/types';
 import { getRelativeLocaleUrl } from 'astro:i18n';
-import { formatTime } from '@/lib/utils';
+import { formatTime, formatRating, getDifficultyColor, truncateText } from '@/lib/utils';
+import { useTranslations } from '@/lib/i18n';
 
 interface Props extends RecipeCardProps {
-  lang?: 'en' | 'fr';
+  lang?: Language;
   className?: string;
 }
 
@@ -16,22 +18,36 @@ const {
   showNutrition = false 
 } = Astro.props;
 
+const t = useTranslations(lang);
 const targetPath = `/recipes/${recipe.slug}`;
 const fullLocalizedUrl = getRelativeLocaleUrl(lang, targetPath);
 
 // Variant-specific styling
+// const cardClasses = {
+//   hero: 'col-span-full md:col-span-2 lg:col-span-3 py-0',
+//   default: 'hover:shadow-lg transition-shadow py-0',
+//   compact: 'max-w-sm py-0',
+//   list: 'flex-row items-center',
+// };
 const cardClasses = {
-  hero: 'col-span-full md:col-span-2 lg:col-span-3 py-0',
-  default: 'hover:shadow-lg transition-shadow py-0',
-  compact: 'max-w-sm py-0',
-  list: 'flex-row items-center',
+  hero: 'col-span-full lg:col-span-2',
+  default: 'hover:shadow-lg transition-shadow',
+  compact: 'max-w-sm',
+  list: 'flex flex-row',
 };
 
+
+// const imageClasses = {
+//   hero: 'h-96 object-cover',
+//   default: 'h-48 object-cover',
+//   compact: 'h-32 object-cover',
+//   list: 'h-24 w-24 object-cover shrink-0',
+// };
 const imageClasses = {
-  hero: 'h-96 object-cover',
-  default: 'h-48 object-cover',
-  compact: 'h-32 object-cover',
-  list: 'h-24 w-24 object-cover shrink-0',
+  hero: 'h-64 md:h-96',
+  default: 'h-48',
+  compact: 'h-32',
+  list: 'w-32 h-full',
 };
 
 const contentClasses = {
@@ -41,93 +57,129 @@ const contentClasses = {
   list: 'flex-1 p-4',
 };
 
-const nutrition = 'nutrition' in recipe ? recipe.nutrition : null;
+const nutrition = recipe.recipe_nutrition?.[0] || recipe.nutrition;
+const rating = recipe.rating || recipe.avg_rating;
+const difficulty = recipe.difficulty;
 ---
 
-<Card className={`${cardClasses[variant]} ${Astro.props.className ?? ''}`}>
-    <a href={fullLocalizedUrl}
-        class="block group"
-        aria-label={`View recipe: ${recipe.title}`}
-        >
+<Card className={`overflow-hidden ${cardClasses[variant]} ${Astro.props.className ?? ''}`}>
+  <a href={fullLocalizedUrl}
+     class="block group"
+     aria-label={`${t.common.view} ${recipe.title}`}>
+    
+    <!-- Image -->
     {recipe.image_url && (
-      <div class={`overflow-hidden ${variant === 'list' ? 'rounded-l-lg' : 'rounded-t-lg'}`}>
+      <div class={`relative overflow-hidden ${variant === 'list' ? '' : 'aspect-video'}`}>
         <img 
           src={recipe.image_url} 
           alt={recipe.title}
-          class={`w-full ${imageClasses[variant]} group-hover:scale-105 transition-transform duration-300`}
+          class={`w-full ${imageClasses[variant]} object-cover group-hover:scale-105 transition-transform duration-300`}
           loading={variant === 'hero' ? 'eager' : 'lazy'}
         />
+        
+        <!-- Badges -->
+        <div class="absolute top-2 left-2 flex gap-2">
+          {recipe.featured && (
+            <span class="px-2 py-1 text-xs font-semibold bg-primary text-primary-foreground rounded">
+              Featured
+            </span>
+          )}
+          {difficulty && (
+            <span class={`px-2 py-1 text-xs font-semibold bg-white/90 rounded ${getDifficultyColor(difficulty)}`}>
+              {t.filters.difficultyOptions[difficulty]}
+            </span>
+          )}
+        </div>
+
+        <!-- Favorite Button -->
+        <button 
+          class="absolute top-2 right-2 p-2 bg-white/80 rounded-full hover:bg-white transition-colors"
+          aria-label={t.common.save}
+          onclick="event.preventDefault(); event.stopPropagation();">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+        </button>
       </div>
     )}
 
-    <div class={contentClasses[variant]}>
-      <CardHeader className="p-0 mb-3">
+    <!-- Content -->
+    <div class={`p-${variant === 'compact' ? '3' : '4'}`}>
+      <CardHeader className="p-0 mb-2">
         <CardTitle className="group-hover:text-primary transition-colors line-clamp-2">
           {recipe.title}
         </CardTitle>
         
         {variant !== 'compact' && recipe.description && (
-          <CardDescription className="line-clamp-2 mt-2">
-            {recipe.description}
+          <CardDescription className="line-clamp-2 mt-1">
+            {truncateText(recipe.description, 150)}
           </CardDescription>
         )}
       </CardHeader>
 
-    {variant !== 'compact' && (
-        <CardContent className="p-0 mb-3">
-          <div class="flex flex-wrap gap-4 text-sm text-muted-foreground">
-            {recipe.total_time && (
-              <div class="flex items-center gap-1">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{formatTime(recipe.total_time)}</span>
-              </div>
-            )}
-            
-            {recipe.servings && (
-              <div class="flex items-center gap-1">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                <span>{recipe.servings} servings</span>
-              </div>
-            )}
-          </div>
-
-          {showNutrition && nutrition && variant === 'hero' && (
-            <div class="mt-4 grid grid-cols-4 gap-2 text-xs">
-              {nutrition.calories && (
-                <div class="text-center p-2 bg-muted rounded">
-                  <div class="font-semibold">{Math.round(nutrition.calories)}</div>
-                  <div class="text-muted-foreground">cal</div>
-                </div>
-              )}
-              {nutrition.protein && (
-                <div class="text-center p-2 bg-muted rounded">
-                  <div class="font-semibold">{Math.round(nutrition.protein)}g</div>
-                  <div class="text-muted-foreground">protein</div>
-                </div>
-              )}
-              {nutrition.carbs && (
-                <div class="text-center p-2 bg-muted rounded">
-                  <div class="font-semibold">{Math.round(nutrition.carbs)}g</div>
-                  <div class="text-muted-foreground">carbs</div>
-                </div>
-              )}
-              {nutrition.fat && (
-                <div class="text-center p-2 bg-muted rounded">
-                  <div class="font-semibold">{Math.round(nutrition.fat)}g</div>
-                  <div class="text-muted-foreground">fat</div>
-                </div>
+      <CardContent className="p-0 space-y-3">
+        <!-- Meta Info -->
+        <div class="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+          {recipe.total_time && (
+            <div class="flex items-center gap-1">
+              <Clock class="w-4 h-4" />
+              <span>{formatTime(recipe.total_time)}</span>
+            </div>
+          )}
+          
+          {recipe.servings && (
+            <div class="flex items-center gap-1">
+              <Users class="w-4 h-4" />
+              <span>{recipe.servings} {recipe.servings === 1 ? t.recipe.serving : t.recipe.servings}</span>
+            </div>
+          )}
+          
+          {rating && (
+            <div class="flex items-center gap-1">
+              <Star class="w-4 h-4 fill-yellow-400 text-yellow-400" />
+              <span>{formatRating(rating)}</span>
+              {recipe.rating_count && (
+                <span class="text-xs">({recipe.rating_count})</span>
               )}
             </div>
           )}
-        </CardContent>
-      )}
+        </div>
 
-    {variant === 'hero' && recipe.tags && recipe.tags.length > 0 && (
-        <CardFooter className="p-0 flex-wrap gap-2">
+        <!-- Nutrition (Hero only) -->
+        {showNutrition && nutrition && variant === 'hero' && (
+          <div class="grid grid-cols-4 gap-2 pt-2 border-t">
+            {nutrition.calories && (
+              <div class="text-center">
+                <div class="text-lg font-semibold">{Math.round(nutrition.calories)}</div>
+                <div class="text-xs text-muted-foreground">{t.recipe.nutritionFacts.calories}</div>
+              </div>
+            )}
+            {nutrition.protein && (
+              <div class="text-center">
+                <div class="text-lg font-semibold">{Math.round(nutrition.protein)}g</div>
+                <div class="text-xs text-muted-foreground">{t.recipe.nutritionFacts.protein}</div>
+              </div>
+            )}
+            {nutrition.carbs && (
+              <div class="text-center">
+                <div class="text-lg font-semibold">{Math.round(nutrition.carbs)}g</div>
+                <div class="text-xs text-muted-foreground">{t.recipe.nutritionFacts.carbs}</div>
+              </div>
+            )}
+            {nutrition.fat && (
+              <div class="text-center">
+                <div class="text-lg font-semibold">{Math.round(nutrition.fat)}g</div>
+                <div class="text-xs text-muted-foreground">{t.recipe.nutritionFacts.fat}</div>
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+
+      <!-- Tags (Hero variant) -->
+      {variant === 'hero' && recipe.tags && recipe.tags.length > 0 && (
+        <CardFooter className="p-0 pt-3 flex-wrap gap-2">
           {recipe.tags.slice(0, 5).map((tag) => (
             <span class="px-2 py-1 text-xs bg-primary/10 text-primary rounded-full">
               {tag.name}

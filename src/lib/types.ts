@@ -6,6 +6,23 @@ export type Season = 'spring' | 'summer' | 'autumn' | 'winter';
 
 export type Recipe = Tables<'recipes'>;
 
+// export interface Recipe extends Tables<'recipes'> {
+//   difficulty?: Difficulty;  // After DB migration
+//   prep_time?: number | null;
+//   cook_time?: number | null;
+//   rating?: number;
+//   rating_count?: number;
+//   view_count?: number;
+//  }
+
+export type ApiError = {
+  code: string;
+  message: string;
+  details?: unknown;
+};
+
+export type ApiResult<T> = { success: true; data: T } | { success: false; error: ApiError };
+
 export interface RecipeTranslation {
   id: string;
   recipe_id: string;
@@ -165,13 +182,34 @@ export interface VFullRecipe {
   salt: number | null;
 }
 
+export interface Category {
+  id: string;
+  slug: string;
+  name: string;
+  icon?: string;
+  recipe_count?: number;
+}
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  username?: string;
+  avatar_url?: string;
+  favorites?: string[]; // recipe IDs
+}
+
 export interface RecipeFilters {
   featured?: boolean;
   season?: Season;
   tags?: string[];
+  categories?: string[];
+  difficulty?: Difficulty;
+  minRating?: number; // NEW
   maxTime?: number;
-  lang?: Language;
+  minTime?: number; // NEW
   search?: string;
+  lang?: Language;
+  sortBy?: 'newest' | 'popular' | 'rating' | 'quickest'; // NEW
 }
 
 export interface PaginationParams {
@@ -254,3 +292,5 @@ export interface LocalizedStepWithDetails {
   instruction: string;
   note: string | null;
 }
+
+export type Difficulty = 'easy' | 'medium' | 'hard';

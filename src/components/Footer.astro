@@ -1,83 +1,112 @@
 ---
+import { useTranslations, getLocalizedUrl } from '@/lib/i18n';
+import { Facebook, Twitter, Instagram, Mail } from 'lucide-astro';
+import type { Language } from '@/lib/types';
+
 interface Props {
-  lang: 'fr' | 'en';
+  lang: Language;
 }
 
 const { lang } = Astro.props;
-
-const translations = {
-    fr: {
-        siteName: 'Mes recettes préférées',
-        linksTitle: 'Liens Rapides',
-        legalTitle: 'Informations Légales',
-        contactTitle: 'Contactez-nous',
-        recipes: 'Recettes',
-        about: 'À propos',
-        terms: 'Conditions',
-        privacy: 'Confidentialité',
-    },
-    en: {
-        siteName: 'My favourite recipes',
-        linksTitle: 'Quick Links',
-        legalTitle: 'Legal Information',
-        contactTitle: 'Contact Us',
-        recipes: 'Recipes',
-        about: 'About',
-        terms: 'Terms',
-        privacy: 'Privacy',
-    },
-};
-
-const t = translations[lang];
-
-// Note: Vous auriez besoin d'une fonction pour générer les URLs localisées ici aussi.
-const getLocalizedUrl = (path: string) => `/${lang}${path}`;
+const t = useTranslations(lang);
+const year = new Date().getFullYear();
 ---
 
-<footer class="bg-card border-t mt-16">
-    <div class="container mx-auto px-4 py-12">
-        
-        
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
-            
-            
-            <div>
-                <h3 class="text-xl font-bold mb-4 text-primary">{t.siteName}</h3>
-                <p class="text-sm text-muted-foreground">© {new Date().getFullYear()}</p>
-            </div>
+<footer class="bg-card border-t mt-auto">
+  <div class="container mx-auto px-4 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <!-- Brand -->
+      <div class="md:col-span-1">
+        <h3 class="text-xl font-bold mb-4 text-primary">{t.site.name}</h3>
+        <p class="text-sm text-muted-foreground mb-4">{t.site.tagline}</p>
+        <p class="text-xs text-muted-foreground">
+          © {year} {t.site.copyright}
+        </p>
+      </div>
 
-            
-            <div>
-                <h4 class="font-semibold mb-4">{t.linksTitle}</h4>
-                <ul class="flex flex-col space-y-2 text-sm text-muted-foreground">
-                    <li><a href={getLocalizedUrl('/recipes')} class="hover:text-primary">{t.recipes}</a></li>
-                    <li><a href={getLocalizedUrl('/about')} class="hover:text-primary">{t.about}</a></li>
-                </ul>
-            </div>
+      <!-- Quick Links -->
+      <div>
+        <h4 class="font-semibold mb-4">{t.footer.quickLinks}</h4>
+        <ul class="space-y-2 text-sm">
+          <li>
+            <a href={getLocalizedUrl(lang, '/recipes')} 
+               class="text-muted-foreground hover:text-primary transition-colors">
+              {t.nav.recipes}
+            </a>
+          </li>
+          <li>
+            <a href={getLocalizedUrl(lang, '/categories')} 
+               class="text-muted-foreground hover:text-primary transition-colors">
+              {t.nav.categories}
+            </a>
+          </li>
+          <li>
+            <a href={getLocalizedUrl(lang, '/seasonal')} 
+               class="text-muted-foreground hover:text-primary transition-colors">
+              {t.nav.seasonal}
+            </a>
+          </li>
+          <li>
+            <a href={getLocalizedUrl(lang, '/about')} 
+               class="text-muted-foreground hover:text-primary transition-colors">
+              {t.nav.about}
+            </a>
+          </li>
+        </ul>
+      </div>
 
-            
-            <div>
-                <h4 class="font-semibold mb-4">{t.legalTitle}</h4>
-                <ul class="flex flex-col space-y-2 text-sm text-muted-foreground">
-                    <li><a href={getLocalizedUrl('/terms')} class="hover:text-primary">{t.terms}</a></li>
-                    <li><a href={getLocalizedUrl('/privacy')} class="hover:text-primary">{t.privacy}</a></li>
-                </ul>
-            </div>
+      <!-- Legal -->
+      <div>
+        <h4 class="font-semibold mb-4">{t.footer.legal}</h4>
+        <ul class="space-y-2 text-sm">
+          <li>
+            <a href={getLocalizedUrl(lang, '/terms')} 
+               class="text-muted-foreground hover:text-primary transition-colors">
+              {t.footer.terms}
+            </a>
+          </li>
+          <li>
+            <a href={getLocalizedUrl(lang, '/privacy')} 
+               class="text-muted-foreground hover:text-primary transition-colors">
+              {t.footer.privacy}
+            </a>
+          </li>
+        </ul>
+      </div>
 
-            
-            <div>
-                <h4 class="font-semibold mb-4">{t.contactTitle}</h4>
-                <div class="flex space-x-4 text-muted-foreground">
-                    
-                    [Icone Social 1]
-                    [Icone Social 2]
-                </div>
-            </div>
+      <!-- Contact / Social -->
+      <div>
+        <h4 class="font-semibold mb-4">{t.footer.contact}</h4>
+        <div class="flex space-x-3">
+          <a href="https://facebook.com" 
+             aria-label="Facebook"
+             class="p-2 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-colors">
+            <Facebook class="w-4 h-4" />
+          </a>
+          <a href="https://twitter.com" 
+             aria-label="Twitter"
+             class="p-2 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-colors">
+            <Twitter class="w-4 h-4" />
+          </a>
+          <a href="https://instagram.com" 
+             aria-label="Instagram"
+             class="p-2 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-colors">
+            <Instagram class="w-4 h-4" />
+          </a>
+          <a href="mailto:contact@example.com" 
+             aria-label="Email"
+             class="p-2 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-colors">
+            <Mail class="w-4 h-4" />
+          </a>
         </div>
-
-        
-        <div class="pt-4 mt-4 border-t border-border flex justify-between items-center text-xs text-muted-foreground">
-            <p>Fait avec Astro et Supabase.</p>
-        </div>
+      </div>
     </div>
+
+    <!-- Bottom Bar -->
+    <div class="mt-8 pt-8 border-t border-border">
+      <p class="text-center text-xs text-muted-foreground">
+        {t.site.madeWith}
+      </p>
+    </div>
+  </div>
 </footer>
