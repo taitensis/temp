@@ -5,7 +5,7 @@ import Footer from '@/components/Footer.astro'; // 👈 Nouveau composant
 
 interface Props {
     title: string;
-    description?: string;
+    description?: string | null;
     // La langue doit être passée pour les composants Header/Footer i18n
     lang?: 'fr' | 'en'; 
 }

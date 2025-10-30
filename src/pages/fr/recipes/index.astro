@@ -1,0 +1,18 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import RecipeCard from "@/components/RecipeCard.astro";
+import { getRecipes } from "@/lib/supabase";
+
+const recipes = await getRecipes();
+---
+
+<BaseLayout
+    title="Recipes"
+    description="List of my recipes"
+>
+    <div class="grid grid-cols 1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {recipes.map((recipe) => (
+                    <RecipeCard recipe={recipe} variant="default" />
+                ))}
+            </div>
+    </BaseLayout>

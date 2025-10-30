@@ -1,0 +1,8 @@
+---
+// src/pages/index.astro
+// Redirect root to default locale
+import { getRelativeLocaleUrl } from 'astro:i18n';
+
+const defaultLocale = 'en'; // or get from config
+return Astro.redirect(getRelativeLocaleUrl(defaultLocale, '/'));
+---
