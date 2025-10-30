@@ -1,30 +1,46 @@
-// src/lib/logger.ts
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
 class Logger {
-  private isDev = import.meta.env.DEV;
+  // Works in Astro/Vite. Fallback to NODE_ENV for Node.js environments
+  private isDev =
+    typeof import.meta.env !== 'undefined'
+      ? import.meta.env.DEV
+      : process.env.NODE_ENV !== 'production';
 
-  log(level: LogLevel, message: string, data?: any) {
+  private log(level: LogLevel, message: string, data?: unknown) {
     if (!this.isDev && level === 'debug') return;
 
     const timestamp = new Date().toISOString();
-    console[level](`[${timestamp}] [${level.toUpperCase()}]`, message, data || '');
+    const output = `[${timestamp}] [${level.toUpperCase()}] ${message}`;
+
+    switch (level) {
+      case 'debug':
+      case 'info':
+        console.warn(output, data ?? '');
+        break;
+      case 'warn':
+        console.warn(output, data ?? '');
+        break;
+      case 'error':
+        console.error(output, data ?? '');
+        break;
+    }
   }
 
-  debug(message: string, data?: any) {
+  debug(message: string, data?: unknown) {
     this.log('debug', message, data);
   }
 
-  info(message: string, data?: any) {
+  info(message: string, data?: unknown) {
     this.log('info', message, data);
   }
 
-  warn(message: string, data?: any) {
+  warn(message: string, data?: unknown) {
     this.log('warn', message, data);
   }
 
-  error(message: string, error?: any) {
-    this.log('error', message, error);
+  error(message: string, data?: unknown) {
+    this.log('error', message, data);
   }
 }
 

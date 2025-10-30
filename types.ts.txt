@@ -15,8 +15,6 @@ export type Recipe = Tables<'recipes'>;
 //   view_count?: number;
 //  }
 
-export type Difficulty = 'easy' | 'medium' | 'hard';
-
 export type ApiError = {
   code: string;
   message: string;
@@ -152,20 +150,17 @@ export interface RecipeTimeWithDetails extends RecipeTime {
   time?: Time;
 }
 
-export type RecipeCard = {
+export interface RecipeCard {
   id: string;
-  slug: string;
   title: string;
-  season: string[] | null;
-  total_time: number | null;
-  featured: boolean | null;
-  calories?: number | null;
-  protein?: number | null;
+  slug: string;
   description: string | null;
   image_url: string;
+  total_time: number | null;
   servings: number | null;
+  featured: boolean;
   tags?: Pick<Tag, 'id' | 'name'>[];
-};
+}
 
 export interface VFullRecipe {
   id: string;
@@ -298,8 +293,4 @@ export interface LocalizedStepWithDetails {
   note: string | null;
 }
 
-export type LocalizedRecipePath = {
-  slug: string;
-  recipe_id: string;
-  lang: string;
-};
+export type Difficulty = 'easy' | 'medium' | 'hard';

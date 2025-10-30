@@ -1,4 +1,5 @@
 // FIX: Properly working filters with all options
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +14,9 @@ import {
 } from '@/components/ui/select';
 import { Search, Filter, X } from 'lucide-react';
 import { useTranslations } from '@/lib/i18n';
-import type { Language, RecipeFilters as Filters } from '@/lib/types';
+import type { Language, RecipeFilters as Filters, Difficulty, Season } from '@/lib/types';
+
+type SortByOption = 'newest' | 'popular' | 'rating' | 'quickest';
 
 interface RecipeFiltersProps {
   lang: Language;
@@ -26,11 +29,17 @@ interface RecipeFiltersProps {
 export default function RecipeFilters({
   lang,
   initialFilters = {},
-  onFiltersChange,
   categories = [],
   tags = [],
+  onFiltersChange,
 }: RecipeFiltersProps) {
+  const [mounted, setMounted] = useState(false);
   const t = useTranslations(lang);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
   const [filters, setFilters] = useState<Filters>({
     search: '',
     difficulty: undefined,
@@ -51,15 +60,17 @@ export default function RecipeFilters({
     if (typeof window === 'undefined') return;
 
     const params = new URLSearchParams(window.location.search);
+    const sortParam = params.get('sort') as SortByOption | null;
+
     const urlFilters: Partial<Filters> = {
       search: params.get('search') || undefined,
-      difficulty: (params.get('difficulty') as any) || undefined,
+      difficulty: (params.get('difficulty') as Difficulty) || undefined,
       maxTime: params.get('maxTime') ? parseInt(params.get('maxTime')!) : undefined,
       minTime: params.get('minTime') ? parseInt(params.get('minTime')!) : undefined,
-      season: (params.get('season') as any) || undefined,
+      season: (params.get('season') as Season) || undefined,
       categories: params.getAll('category'),
       tags: params.getAll('tag'),
-      sortBy: (params.get('sort') as any) || 'newest',
+      sortBy: sortParam ?? 'newest',
       minRating: params.get('rating') ? parseFloat(params.get('rating')!) : undefined,
     };
 
@@ -145,7 +156,7 @@ export default function RecipeFilters({
       {/* Sort Options */}
       <Select
         value={filters.sortBy}
-        onValueChange={(value) => setFilters((prev) => ({ ...prev, sortBy: value as any }))}
+        onValueChange={(value: SortByOption) => setFilters((prev) => ({ ...prev, sortBy: value }))}
       >
         <SelectTrigger>
           <SelectValue placeholder={t.filters.sortBy} />
@@ -182,10 +193,10 @@ export default function RecipeFilters({
             <Label>{t.filters.difficulty}</Label>
             <Select
               value={filters.difficulty || ''}
-              onValueChange={(value) =>
+              onValueChange={(value: '' | Difficulty) =>
                 setFilters((prev) => ({
                   ...prev,
-                  difficulty: value === '' ? undefined : (value as any),
+                  difficulty: value === '' ? undefined : value,
                 }))
               }
             >
@@ -243,10 +254,10 @@ export default function RecipeFilters({
             <Label>{t.filters.season}</Label>
             <Select
               value={filters.season || ''}
-              onValueChange={(value) =>
+              onValueChange={(value: '' | Season) =>
                 setFilters((prev) => ({
                   ...prev,
-                  season: value === '' ? undefined : (value as any),
+                  season: value === '' ? undefined : value,
                 }))
               }
             >

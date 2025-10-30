@@ -1,10 +1,11 @@
 ---
+// src/pages/en/index.astro
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import RecipeCard from "@/components/RecipeCard.astro";
 import FilterDrawer from "@/components/FilterDrawer";
 import RecipeFilters from "@/components/RecipeFilters";
-import { getRecipes, getRecipesBySeason } from "@/lib/supabase";
+import { getRecipes } from "@/lib/supabase";
 import { FEATURED_RECIPES_COUNT } from '@/lib/constants';
 
 export const getStaticPaths = (() => {
@@ -16,9 +17,11 @@ export const getStaticPaths = (() => {
 
 const { lang } = Astro.params as { lang: 'en' | 'fr' };
 
-const featuredRecipes = await getRecipes({ limit: FEATURED_RECIPES_COUNT });
-const heroRecipe = featuredRecipes[0];
-const otherRecipes = featuredRecipes.slice(1);
+const featuredRecipesResponse = await getRecipes(undefined, 1, FEATURED_RECIPES_COUNT);
+const featuredRecipes = featuredRecipesResponse.data || [];
+
+const heroRecipe = featuredRecipes.length > 0 ? featuredRecipes[0] : null;
+const otherRecipes = featuredRecipes.length > 1 ? featuredRecipes.slice(1) : [];
 
 const currentMonth = new Date().getMonth();
 const currentSeason =
@@ -26,57 +29,73 @@ const currentSeason =
     currentMonth >= 6 && currentMonth <= 8 ? 'summer' :
     currentMonth >= 9 && currentMonth <= 11 ? 'autumn' : 'winter';
 
-const seasonRecipes = await getRecipesBySeason(currentSeason);
+console.log('Current month:', currentMonth);
+console.log('Current season:', currentSeason);
 
-// ⚠️ Assurez-vous de passer la langue à BaseLayout
+const seasonRecipes = await getRecipes({ season: currentSeason }, 1, 12);
+console.log('seasonRecipes:', seasonRecipes);
+console.log('seasonRecipes.data:', seasonRecipes.data);
+
+const translations = {
+  en: { searchFilter: 'Search & Filter', noSeasonalRecipes: 'No seasonal recipes found.' },
+  fr: { searchFilter: 'Rechercher & Filtrer', noSeasonalRecipes: 'Aucune recette de saison trouvée.' }
+};
+const translationsForLang = translations[lang] || translations['en'];
 ---
 
 <BaseLayout
-    title="Home"
-    description="Discover my favourite recipes!"
-    lang={lang} 
+  title="Home"
+  description="Discover my favourite recipes!"
+  lang={lang}
 >
-    <div class="relative grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-x-8 gap-y-12">
-        
-        {/* Aside - container for sticky sidebar */}
-        <aside class="lg:col-start-1 lg:col-end-2">
-            {/* Mobile Drawer */}
-            <FilterDrawer lang={lang} client:load />
-
-            {/* Desktop Sidebar - Sticky between header and footer */}
-            <div class="hidden lg:block sticky top-24 self-start">
-                <div class="space-y-6 max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-none pr-2 scrollbar-thin">
-                    <h3 class="text-2xl font-semibold mb-4">
-                        {lang === 'en' ? 'Search & Filter' : 'Rechercher & Filtrer'}
-                    </h3>
-                    <RecipeFilters lang={lang} client:load />
-                </div>
-            </div>
-        </aside>
-
-        {/* Main content area */}
-        <div class="lg:col-start-2 lg:col-end-3">
-            <section class="mb-12">
-                <h2 class="text-4xl font-bold mb-8">Featured Recipes</h2>
-        
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <RecipeCard recipe={heroRecipe} variant="hero" lang={lang} className="md:col-span-2" /> 
-        
-                    {otherRecipes.map((recipe) => (
-                        <RecipeCard recipe={recipe} variant="default" lang={lang} />
-                    ))}
-                </div>
-            </section>
-
-            <section>
-                <h2 class="text-4xl font-bold mb-8">Seasonal Recipes</h2>
-        
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {seasonRecipes.map((recipe) => (
-                        <RecipeCard recipe={recipe} variant="default" lang={lang} />
-                    ))}
-                </div>
-            </section>
+  <div class="relative grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-x-8 gap-y-12">
+    <!-- Aside - container for sticky sidebar -->
+    <aside class="lg:col-start-1 lg:col-end-2">
+      <!-- Mobile Drawer -->
+      <FilterDrawer lang={lang} client:load />
+      <!-- Desktop Sidebar - Sticky between header and footer -->
+      <div class="hidden lg:block sticky top-24 self-start">
+        <div class="space-y-6 max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-none pr-2 scrollbar-thin">
+          <h3 class="text-2xl font-semibold mb-4">{translationsForLang.searchFilter}</h3>
+          <RecipeFilters
+            lang={lang}
+            initialFilters={{}}
+            categories={[]}
+            tags={[]}
+            client:load
+            />
         </div>
+      </div>
+    </aside>
+
+    <!-- Main content area -->
+    <div class="lg:col-start-2 lg:col-end-3">
+      <section class="mb-12">
+        <h2 class="text-4xl font-bold mb-8">Featured Recipes</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {heroRecipe && (
+            <RecipeCard recipe={heroRecipe} variant="hero" lang={lang} className="md:col-span-2" />
+          )}
+          {otherRecipes.map((recipe) => (
+  recipe && <RecipeCard recipe={recipe} variant="default" lang={lang} />
+))}
+        </div>
+      </section>
+
+      <section>
+        <h2 class="text-4xl font-bold mb-8">Seasonal Recipes</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+         {seasonRecipes?.data?.length ? (
+      seasonRecipes.data.map((recipe) => (
+              <RecipeCard recipe={recipe} variant="default" lang={lang} />
+            ))
+    ) : (
+            <p>{translationsForLang.noSeasonalRecipes}</p>
+          )}
+        </div>
+      </section>
     </div>
+  </div>
 </BaseLayout>

@@ -19,7 +19,11 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "node",
+    "types": ["vite/client"]
   },
   "include": ["src/**/*"],
   "exclude": ["dist", "node_modules"]

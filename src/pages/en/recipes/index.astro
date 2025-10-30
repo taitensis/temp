@@ -2,17 +2,51 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import RecipeCard from "@/components/RecipeCard.astro";
 import { getRecipes } from "@/lib/supabase";
+// import FilterDrawer from "@/components/FilterDrawer";
+import type { Difficulty } from "@/lib/types";
+import RecipeFilters from "@/components/RecipeFilters";
 
-const recipes = await getRecipes();
+
+const { lang } = Astro.params as { lang: 'en' | 'fr' };
+
+// Get URL parameters
+const searchQuery = Astro.url.searchParams.get('search') || '';
+const difficultyParam = Astro.url.searchParams.get('difficulty') || undefined;
+const maxTimeParam = Astro.url.searchParams.get('maxTime');
+const tags = Astro.url.searchParams.getAll('tags');
+
+// Cast difficultyParam to Difficulty if valid
+const difficulty = (difficultyParam as Difficulty) || undefined;
+
+// Fetch filtered recipes
+const recipes = await getRecipes({
+  search: searchQuery,
+  difficulty: difficulty,
+  maxTime: maxTimeParam ? parseInt(maxTimeParam) : undefined,
+  tags
+});
 ---
 
-<BaseLayout
-    title="Recipes"
-    description="List of my recipes"
->
-    <div class="grid grid-cols 1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {recipes.map((recipe) => (
-                    <RecipeCard recipe={recipe} variant="default" />
-                ))}
-            </div>
-    </BaseLayout>
+<BaseLayout title="Recipes" lang={lang}>
+  <div class="grid grid-cols 1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <aside>
+      <!-- client:load is an Astro directive, not a prop -->
+      <RecipeFilters
+        lang={lang}
+        initialFilters={{
+          search: searchQuery,
+          difficulty: difficulty,
+          maxTime: maxTimeParam ? Number(maxTimeParam) : undefined,
+          tags
+        }}
+        client:load
+      />
+    </aside>
+
+    <div class="recipe-grid">
+      {recipes?.data?.map(recipe => (
+        <RecipeCard recipe={recipe} lang={lang} />
+      ))}
+    </div>
+  </div>
+</BaseLayout>

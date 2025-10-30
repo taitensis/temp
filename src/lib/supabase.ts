@@ -1,6 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './database.type';
-import type { Recipe, RecipeFilters, PaginatedResponse, ApiResult, Language } from './types';
+import type {
+  RecipeCard,
+  FullLocalizedRecipe,
+  RecipeFilters,
+  PaginatedResponse,
+  ApiResult,
+  Language,
+  LocalizedRecipePath,
+} from './types';
+import { transformToFullLocalizedRecipe } from './tranform/transformToFullLocalizedRecipe';
 
 const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
 const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
@@ -16,11 +25,23 @@ export async function getRecipes(
   filters?: RecipeFilters,
   page: number = 1,
   limit: number = 12
-): Promise<PaginatedResponse<Recipe>> {
+): Promise<PaginatedResponse<RecipeCard>> {
   try {
     let query = supabase
       .from('recipes')
-      .select('*, recipe_nutrition(*), recipe_tags(tag_id)', { count: 'exact' });
+      .select(
+        `
+  id,
+  season,
+  total_time,
+  featured,
+  recipe_translations!inner(slug, title, lang),
+  recipe_nutrition(*),
+  recipe_tags(tag_id)
+`,
+        { count: 'exact' }
+      )
+      .eq('recipe_translations.lang', filters?.lang ?? 'en');
 
     // Search filter
     if (filters?.search) {
@@ -89,8 +110,22 @@ export async function getRecipes(
       filteredData = data.filter((r) => recipeIds.has(r.id));
     }
 
+    const mappedData: RecipeCard[] = filteredData.map((r) => ({
+      id: r.id,
+      slug: r.recipe_translations[0].slug,
+      title: r.recipe_translations[0].title,
+      description: null, // not selected in this query → fine
+      image_url: null, // not selected in this query → fine
+      servings: null, // optional → fine
+      total_time: r.total_time,
+      featured: r.featured,
+      season: r.season,
+      calories: r.recipe_nutrition?.calories ?? null,
+      protein: r.recipe_nutrition?.protein ?? null,
+    }));
+
     return {
-      data: filteredData,
+      data: mappedData,
       pagination: {
         page,
         limit,
@@ -167,7 +202,7 @@ export async function getFullLocalizedRecipe(
 // ADD: Increment view counter
 export async function incrementRecipeViews(recipeId: string): Promise<void> {
   try {
-    await supabase.rpc('increment_view_count', { recipe_id: recipeId });
+    await supabase.rpc('increment_view_count' as any, { recipe_id: recipeId });
   } catch (error) {
     console.error('Error incrementing views:', error);
   }
@@ -203,4 +238,23 @@ export async function toggleFavorite(
       },
     };
   }
+}
+
+export async function getLocalizedRecipePaths(): Promise<LocalizedRecipePath[]> {
+  const { data, error } = await supabase
+    .from('recipe_translations')
+    .select('recipe_id, slug, lang');
+
+  if (error) {
+    console.error('Error fetching localized recipe paths:', error);
+    return [];
+  }
+
+  return data
+    .filter((t) => t.recipe_id !== null)
+    .map((t) => ({
+      recipe_id: t.recipe_id as string,
+      slug: t.slug,
+      lang: t.lang,
+    }));
 }

@@ -1,8 +1,8 @@
 ---
-// FIX: Complete rewrite with proper i18n
-import { getRelativeLocaleUrl } from 'astro:i18n';
-import { Moon, Sun, Menu, X, User } from 'lucide-astro';
+import { Moon, Sun, Menu, X, User } from 'lucide-react';
 import { useTranslations, getAltLang } from '@/lib/i18n';
+import { buildLocalizedUrl } from '@/lib/path-handling';
+import { getAlternateLanguageUrl } from '@/lib/language-switcher';
 import type { Language } from '@/lib/types';
 
 interface Props {
@@ -13,23 +13,23 @@ const { lang } = Astro.props;
 const t = useTranslations(lang);
 const altLang = getAltLang(lang);
 
-// FIX: Dynamic site name based on language
+// Dynamic site name based on language
 const siteName = t.site.name;
 
-// FIX: Proper language switching
-const currentPath = Astro.url.pathname;
-const pathWithoutLang = currentPath.replace(/^\/(en|fr)/, '');
-const switchLangPath = `/${altLang}${pathWithoutLang || '/'}`;
+// Get language switch URL using official Astro i18n API
+const switchLangPath = getAlternateLanguageUrl(Astro.url.pathname, lang);
 
 // Navigation links with proper i18n
 const navLinks = [
-  { href: '/recipes', text: t.nav.recipes },
-  { href: '/categories', text: t.nav.categories }, // NEW
-  { href: '/seasonal', text: t.nav.seasonal },
-  { href: '/about', text: t.nav.about },
+  { href: `/recipes`, text: t.nav.recipes },
+  { href: `/categories`, text: t.nav.categories },
+  { href: `/seasonal`, text: t.nav.seasonal },
+  { href: `/about`, text: t.nav.about },
 ];
 
-const getNavUrl = (path: string) => getRelativeLocaleUrl(lang, path);
+// Build localized URLs for navigation
+const getNavUrl = (path: string) => buildLocalizedUrl(lang, path);
+const currentPath = Astro.url.pathname;
 ---
 
 <header class="sticky top-0 z-50 bg-background/90 backdrop-blur-sm border-b">
@@ -77,23 +77,23 @@ const getNavUrl = (path: string) => getRelativeLocaleUrl(lang, path);
           aria-label="Toggle Theme"
           class="p-2 rounded-full hover:bg-muted transition-colors"
           id="theme-toggle">
-          <Sun class="w-5 h-5 dark:hidden" />
-          <Moon class="w-5 h-5 hidden dark:block" />
+          <Sun className="w-5 h-5 dark:hidden" />
+          <Moon className="w-5 h-5 hidden dark:block" />
         </button>
 
         <!-- User Menu -->
         <button 
           id="user-menu-trigger"
           class="p-2 rounded-full hover:bg-muted transition-colors">
-          <User class="w-5 h-5" />
+          <User className="w-5 h-5" />
         </button>
 
         <!-- Mobile Menu Toggle -->
         <button 
           id="mobile-menu-toggle"
           class="md:hidden p-2 rounded-full hover:bg-muted transition-colors">
-          <Menu class="w-5 h-5" id="menu-icon" />
-          <X class="w-5 h-5 hidden" id="close-icon" />
+          <Menu className="w-5 h-5" id="menu-icon" />
+          <X className="w-5 h-5 hidden" id="close-icon" />
         </button>
       </div>
     </div>
@@ -114,7 +114,7 @@ const getNavUrl = (path: string) => getRelativeLocaleUrl(lang, path);
   </div>
 </header>
 
-<!-- Search Modal -->
+<!-- Search Modal
 <div id="search-modal" class="hidden fixed inset-0 z-50 bg-black/50">
   <div class="container mx-auto px-4 pt-20">
     <div class="bg-background rounded-lg p-4 max-w-2xl mx-auto">
@@ -128,7 +128,7 @@ const getNavUrl = (path: string) => getRelativeLocaleUrl(lang, path);
       <div id="search-results" class="mt-4"></div>
     </div>
   </div>
-</div>
+</div> -->
 
 <script>
   // Theme toggle
@@ -159,31 +159,31 @@ const getNavUrl = (path: string) => getRelativeLocaleUrl(lang, path);
     closeIcon?.classList.toggle('hidden');
   });
 
-  // Search modal
-  const searchTrigger = document.getElementById('search-trigger');
-  const searchModal = document.getElementById('search-modal');
-  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  // // Search modal
+  // const searchTrigger = document.getElementById('search-trigger');
+  // const searchModal = document.getElementById('search-modal');
+  // const searchInput = document.getElementById('search-input') as HTMLInputElement;
   
-  searchTrigger?.addEventListener('click', () => {
-    searchModal?.classList.toggle('hidden');
-    searchInput?.focus();
-  });
+  // searchTrigger?.addEventListener('click', () => {
+  //   searchModal?.classList.toggle('hidden');
+  //   searchInput?.focus();
+  // });
   
-  searchModal?.addEventListener('click', (e) => {
-    if (e.target === searchModal) {
-      searchModal.classList.add('hidden');
-    }
-  });
+  // searchModal?.addEventListener('click', (e) => {
+  //   if (e.target === searchModal) {
+  //     searchModal.classList.add('hidden');
+  //   }
+  // });
   
-  // Quick search functionality
-  searchInput?.addEventListener('input', async (e) => {
-    const query = (e.target as HTMLInputElement).value;
-    if (query.length < 2) return;
+  // // Quick search functionality
+  // searchInput?.addEventListener('input', async (e) => {
+  //   const query = (e.target as HTMLInputElement).value;
+  //   if (query.length < 2) return;
     
-    // Implement search API call here
-    const results = document.getElementById('search-results');
-    if (results) {
-      results.innerHTML = `<p class="text-muted-foreground">Searching for "${query}"...</p>`;
-    }
-  });
+  //   // Implement search API call here
+  //   const results = document.getElementById('search-results');
+  //   if (results) {
+  //     results.innerHTML = `<p class="text-muted-foreground">Searching for "${query}"...</p>`;
+  //   }
+  // });
 </script>

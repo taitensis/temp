@@ -1,4 +1,4 @@
-import type { Recipe, Language, RecipeNutrition } from './types';
+import type { Recipe, FullLocalizedRecipe, Language } from './types';
 
 export function isValidLanguage(lang: unknown): lang is Language {
   return lang === 'en' || lang === 'fr';

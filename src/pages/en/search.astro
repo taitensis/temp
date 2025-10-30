@@ -1,10 +1,16 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import RecipeCard from "@/components/RecipeCard.astro";
-import { searchRecipes } from "@/lib/supabase";
+import { getRecipes } from "@/lib/supabase";
+import type { Recipe, RecipeFilters } from "@/lib/types";
 
 const query = Astro.url.searchParams.get('q') || '';
-const recipes = query ? await searchRecipes(query) : [];
+
+let recipes: Recipe[] = [];
+if (query) {
+  const response = await getRecipes({ search: query } as RecipeFilters, 1, 50); // adjust limit
+  recipes = response.data;
+}
 ---
 
 <BaseLayout title="Search Results" lang="en">
@@ -19,7 +25,7 @@ const recipes = query ? await searchRecipes(query) : [];
       </p>
     ) : (
       <div class="recipe-grid">
-        {recipes.map(recipe => (
+        {recipes.map((recipe: Recipe) => (
           <RecipeCard recipe={recipe} lang="en" />
         ))}
       </div>

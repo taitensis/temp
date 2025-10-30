@@ -1,7 +1,7 @@
 ---
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { Clock, Users, Star } from 'lucide-react';
-import type { RecipeCardProps, Language, RecipeCard, FullRecipe, RecipeNutrition } from '@/lib/types';
+import { Clock, Users, ChefHat, Star } from 'lucide-astro';
+import type { RecipeCardProps, Language } from '@/lib/types';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { formatTime, formatRating, getDifficultyColor, truncateText } from '@/lib/utils';
 import { useTranslations } from '@/lib/i18n';
@@ -11,41 +11,16 @@ interface Props extends RecipeCardProps {
   className?: string;
 }
 
-const {
-  recipe,
+const { 
+  recipe, 
   variant = 'default',
   lang = 'en',
-  showNutrition = false
-} = Astro.props as Props;
-
-function hasSlug(r: any): r is { slug: string | null } {
-  return typeof r.slug === 'string' || r.slug === null;
-}
+  showNutrition = false 
+} = Astro.props;
 
 const t = useTranslations(lang);
-const recipeSlug = hasSlug(recipe) && recipe.slug ? recipe.slug : recipe.id;
-const fullLocalizedUrl = getRelativeLocaleUrl(lang, `/recipes/${recipeSlug}`);
-
-// Type guards
-const isFullRecipe = (r: RecipeCard | FullRecipe): r is FullRecipe =>
-  'nutrition' in r || 'ingredients' in r || 'rating_count' in r;
-
-// Normalize fields
-const nutrition: RecipeNutrition | null =
-  isFullRecipe(recipe)
-    ? recipe.nutrition ?? null
-    : (recipe as any).recipe_nutrition?.[0] ?? null;
-
-const rating =
-  (isFullRecipe(recipe) ? recipe.rating : (recipe as any).rating) ??
-  (isFullRecipe(recipe) ? null : (recipe as any).avg_rating ?? null);
-
-const difficulty = (recipe as any).difficulty ?? null;
-
-interface Props extends RecipeCardProps {
-  lang?: Language;
-  className?: string;
-}
+const targetPath = `/recipes/${recipe.slug}`;
+const fullLocalizedUrl = getRelativeLocaleUrl(lang, targetPath);
 
 // Variant-specific styling
 // const cardClasses = {
@@ -81,12 +56,16 @@ const imageClasses = {
 //   compact: 'p-3',
 //   list: 'flex-1 p-4',
 // };
+
+const nutrition = recipe.recipe_nutrition?.[0] || recipe.nutrition;
+const rating = recipe.rating || recipe.avg_rating;
+const difficulty = recipe.difficulty;
 ---
 
 <Card className={`overflow-hidden ${cardClasses[variant]} ${Astro.props.className ?? ''}`}>
   <a href={fullLocalizedUrl}
-   class="block group"
-   aria-label={`${t.common.view} ${recipe.title}`}>
+     class="block group"
+     aria-label={`${t.common.view} ${recipe.title}`}>
     
     <!-- Image -->
     {recipe.image_url && (
@@ -107,7 +86,7 @@ const imageClasses = {
           )}
           {difficulty && (
             <span class={`px-2 py-1 text-xs font-semibold bg-white/90 rounded ${getDifficultyColor(difficulty)}`}>
-              {t.filters.difficultyOptions[difficulty as keyof typeof t.filters.difficultyOptions]}
+              {t.filters.difficultyOptions[difficulty]}
             </span>
           )}
         </div>
@@ -144,23 +123,23 @@ const imageClasses = {
         <div class="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
           {recipe.total_time && (
             <div class="flex items-center gap-1">
-              <Clock className="w-4 h-4" />
+              <Clock class="w-4 h-4" />
               <span>{formatTime(recipe.total_time)}</span>
             </div>
           )}
           
           {recipe.servings && (
             <div class="flex items-center gap-1">
-              <Users className="w-4 h-4" />
+              <Users class="w-4 h-4" />
               <span>{recipe.servings} {recipe.servings === 1 ? t.recipe.serving : t.recipe.servings}</span>
             </div>
           )}
           
           {rating && (
             <div class="flex items-center gap-1">
-              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+              <Star class="w-4 h-4 fill-yellow-400 text-yellow-400" />
               <span>{formatRating(rating)}</span>
-              {isFullRecipe(recipe) && recipe.rating_count && (
+              {recipe.rating_count && (
                 <span class="text-xs">({recipe.rating_count})</span>
               )}
             </div>

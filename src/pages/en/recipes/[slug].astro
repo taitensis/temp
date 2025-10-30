@@ -2,15 +2,17 @@
 import { getLocalizedRecipePaths, getFullLocalizedRecipe } from '@/lib/supabase';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import type { GetStaticPaths } from 'astro';
+import type { LocalizedRecipePath } from '@/lib/types';
 
 export const getStaticPaths = (async () => {
   const paths = await getLocalizedRecipePaths();
+  console.log('Localized paths:', paths);
   return paths
-    .filter(p => p.lang === 'en')
-    .map(p => ({
-      params: { slug: p.slug },
-      props: { recipeId: p.recipe_id }
-    }));
+  .filter((p: LocalizedRecipePath) => p.lang === 'en')
+  .map((p: LocalizedRecipePath) => ({
+    params: { slug: p.slug },
+    props: { recipeId: p.recipe_id }
+  }));
 }) satisfies GetStaticPaths;
 
 const { recipeId } = Astro.props as { recipeId: string };

@@ -18,6 +18,7 @@ export const translations = {
       save: 'Save',
       saved: 'Saved',
       remove: 'Remove',
+      view: 'View',
     },
     site: {
       name: 'My Favorite Recipes',
@@ -123,6 +124,7 @@ export const translations = {
       save: 'Sauvegarder',
       saved: 'Sauvegardé',
       remove: 'Supprimer',
+      view: 'Vue',
     },
     site: {
       name: 'Mes Recettes Préférées',
@@ -226,17 +228,21 @@ export function useTranslations(lang: Language) {
 
 export function t(lang: Language, path: string): string {
   const keys = path.split('.');
-  let value: any = translations[lang];
+  let value: unknown = translations[lang];
 
   for (const key of keys) {
-    value = value?.[key];
-    if (value === undefined) {
+    if (typeof value === 'object' && value !== null && key in value) {
+      value = (value as Record<string, unknown>)[key];
+    } else {
       console.warn(`Translation missing: ${path} for ${lang}`);
       return path;
     }
   }
 
-  return value;
+  if (typeof value === 'string') return value;
+
+  console.warn(`Translation not a string: ${path} for ${lang}`);
+  return path;
 }
 
 // Helper for components
