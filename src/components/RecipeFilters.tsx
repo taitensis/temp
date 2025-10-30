@@ -9,6 +9,29 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Search } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import useSearchP
+
+export default function RecipeFilters({ lang }: RecipeFiltersProps) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [filters, setFilters] = useState({
+    search: searchParams.get('search') || '',
+    difficulty: searchParams.get('difficulty') || '',
+    maxTime: searchParams.get('maxTime') || '',
+    tags: searchParams.getAll('tags'),
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const params = new URLSearchParams();
+    if (filters.search) params.set('search', filters.search);
+    if (filters.difficulty) params.set('difficulty', filters.difficulty);
+    if (filters.maxTime) params.set('maxTime', filters.maxTime);
+    filters.tags.forEach(tag => params.append('tags', tag));
+    
+    setSearchParams(params);
+  };
 
 interface RecipeFiltersProps {
   lang: 'fr' | 'en';

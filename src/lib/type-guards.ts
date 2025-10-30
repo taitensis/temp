@@ -1,0 +1,15 @@
+import type { Recipe, FullLocalizedRecipe, Language } from './types';
+
+export function isValidLanguage(lang: unknown): lang is Language {
+  return lang === 'en' || lang === 'fr';
+}
+
+export function isRecipe(data: unknown): data is Recipe {
+  return (
+    typeof data === 'object' && data !== null && 'id' in data && 'slug' in data && 'title' in data
+  );
+}
+
+export function hasNutrition(recipe: Recipe): recipe is Recipe & { nutrition: RecipeNutrition } {
+  return 'nutrition' in recipe && recipe.nutrition !== null;
+}

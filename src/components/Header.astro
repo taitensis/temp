@@ -1,5 +1,6 @@
 ---
 import { getRelativeLocaleUrl } from 'astro:i18n';
+import { Moon, Sun } from 'lucide-astro';
 
 interface Props {
   lang: 'en' | 'fr';
@@ -53,9 +54,30 @@ const switchLangPath = lang === 'fr' ? getRelativeLocaleUrl('en', Astro.url.path
             </a>
             
             
-            <button aria-label="Toggle Theme" class="p-2 rounded-full hover:bg-muted transition-colors">
-                [Icone Thème]
-            </button>
+            <button 
+  aria-label="Toggle Theme"
+  class="p-2 rounded-full hover:bg-muted transition-colors"
+  id="theme-toggle"
+>
+  <Sun class="w-5 h-5 dark:hidden" />
+  <Moon class="w-5 h-5 hidden dark:block" />
+</button>
+
+<script>
+  const themeToggle = document.getElementById('theme-toggle');
+  themeToggle?.addEventListener('click', () => {
+    document.documentElement.classList.toggle('dark');
+    localStorage.setItem(
+      'theme',
+      document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+    );
+  });
+  
+  // Load theme on page load
+  if (localStorage.getItem('theme') === 'dark') {
+    document.documentElement.classList.add('dark');
+  }
+</script>
             
             
             <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold">

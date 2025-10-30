@@ -3,6 +3,6 @@
 // Redirect root to default locale
 import { getRelativeLocaleUrl } from 'astro:i18n';
 
-const defaultLocale = 'en'; // or get from config
+const defaultLocale = 'fr'; // or get from config
 return Astro.redirect(getRelativeLocaleUrl(defaultLocale, '/'));
 ---

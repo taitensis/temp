@@ -1,14 +1,22 @@
 ---
+import type { GetStaticPaths } from 'astro';
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import RecipeCard from "@/components/RecipeCard.astro";
 import FilterDrawer from "@/components/FilterDrawer";
 import RecipeFilters from "@/components/RecipeFilters";
 import { getRecipes, getRecipesBySeason } from "@/lib/supabase";
+import { FEATURED_RECIPES_COUNT } from '@/lib/constants';
 
-// Assumons que cette page est la version anglaise
-const lang = 'en'; 
+export const getStaticPaths = (() => {
+  return [
+    { params: { lang: 'en' } },
+    { params: { lang: 'fr' } }
+  ];
+}) satisfies GetStaticPaths;
 
-const featuredRecipes = await getRecipes({ limit: 6 });
+const { lang } = Astro.params as { lang: 'en' | 'fr' };
+
+const featuredRecipes = await getRecipes({ limit: FEATURED_RECIPES_COUNT });
 const heroRecipe = featuredRecipes[0];
 const otherRecipes = featuredRecipes.slice(1);
 

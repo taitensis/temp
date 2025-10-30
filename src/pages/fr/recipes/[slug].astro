@@ -6,7 +6,7 @@ import type { GetStaticPaths } from 'astro';
 export const getStaticPaths = (async () => {
   const paths = await getLocalizedRecipePaths();
   return paths
-    .filter(p => p.lang === 'en')
+    .filter(p => p.lang === 'fr')
     .map(p => ({
       params: { slug: p.slug },
       props: { recipeId: p.recipe_id }
@@ -14,14 +14,14 @@ export const getStaticPaths = (async () => {
 }) satisfies GetStaticPaths;
 
 const { recipeId } = Astro.props;
-const recipe = await getFullLocalizedRecipe(recipeId, 'en');
+const recipe = await getFullLocalizedRecipe(recipeId, 'fr');
 
 if (!recipe) {
   return Astro.redirect('/404');
 }
 ---
 
-<BaseLayout title={recipe.title} description={recipe.description} lang="en">
+<BaseLayout title={recipe.title} description={recipe.description} lang="fr">
   <!-- Display full recipe here -->
   <h1>{recipe.title}</h1>
   <!-- Add ingredients, steps, etc. -->

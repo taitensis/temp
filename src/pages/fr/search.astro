@@ -1,0 +1,28 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import RecipeCard from "@/components/RecipeCard.astro";
+import { searchRecipes } from "@/lib/supabase";
+
+const query = Astro.url.searchParams.get('q') || '';
+const recipes = query ? await searchRecipes(query) : [];
+---
+
+<BaseLayout title="Search Results" lang="fr">
+  <div class="space-y-6">
+    <h1 class="text-4xl font-bold">
+      Search Results for "{query}"
+    </h1>
+    
+    {recipes.length === 0 ? (
+      <p class="text-muted-foreground">
+        No recipes found. Try a different search term.
+      </p>
+    ) : (
+      <div class="recipe-grid">
+        {recipes.map(recipe => (
+          <RecipeCard recipe={recipe} lang="fr" />
+        ))}
+      </div>
+    )}
+  </div>
+</BaseLayout>

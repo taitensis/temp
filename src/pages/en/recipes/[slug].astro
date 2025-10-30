@@ -13,7 +13,11 @@ export const getStaticPaths = (async () => {
     }));
 }) satisfies GetStaticPaths;
 
-const { recipeId } = Astro.props;
+const { recipeId } = Astro.props as { recipeId: string };
+if (!recipeId || typeof recipeId !== 'string') {
+  return Astro.redirect('/404');
+}
+
 const recipe = await getFullLocalizedRecipe(recipeId, 'en');
 
 if (!recipe) {

@@ -2,7 +2,7 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import type { RecipeCardProps } from '@/lib/types';
 import { getRelativeLocaleUrl } from 'astro:i18n';
-// import { formatTime } from '@/lib/supabase'
+import { formatTime } from '@/lib/utils';
 
 interface Props extends RecipeCardProps {
   lang?: 'en' | 'fr';
@@ -46,7 +46,7 @@ const nutrition = 'nutrition' in recipe ? recipe.nutrition : null;
 
 <Card className={`${cardClasses[variant]} ${Astro.props.className ?? ''}`}>
     <a href={fullLocalizedUrl}
-        class="block ground"
+        class="block group"
         aria-label={`View recipe: ${recipe.title}`}
         >
     {recipe.image_url && (
@@ -81,7 +81,7 @@ const nutrition = 'nutrition' in recipe ? recipe.nutrition : null;
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                {/* <span>{formatTime(recipe.total_time)}</span> */}
+                <span>{formatTime(recipe.total_time)}</span>
               </div>
             )}
             
@@ -138,12 +138,3 @@ const nutrition = 'nutrition' in recipe ? recipe.nutrition : null;
     </div>
   </a>
 </Card>
-
-<!-- <style>
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-</style> -->

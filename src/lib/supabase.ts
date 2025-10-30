@@ -11,6 +11,7 @@ import type {
   RecipeTimeWithDetails,
   TagWithTranslations,
   Recipe,
+  RecipeCard,
 } from './types';
 
 // --- client init ---
@@ -49,10 +50,23 @@ export async function getRecipes(filters?: {
 }
 
 export async function getRecipeBySlug(slug: string): Promise<Recipe | null> {
-  const { data, error } = supabase.from('recipes').select('*').eq('slug', slug).maybeSingle();
+  try {
+    const { data, error } = await supabase
+      .from('recipes')
+      .select('*')
+      .eq('slug', slug)
+      .maybeSingle();
 
-  if (error) throw error;
-  return data;
+    if (error) {
+      console.error(`Error fetching recipe by slug ${slug}:`, error);
+      return null;
+    }
+
+    return data;
+  } catch (err) {
+    console.error(`Exception in getRecipeBySlug:`, err);
+    return null;
+  }
 }
 
 export async function searchRecipes(query: string): Promise<Recipe[]> {
@@ -175,7 +189,7 @@ export async function getFullLocalizedRecipe(
       const ingredientName =
         item.ingredient.ingredient_translations.find((t) => t.lang === lang)?.name ||
         item.ingredient.ingredient_translations[0]?.name ||
-        'Untranslated Ingredient';
+        'Unknown Ingredient';
 
       return {
         quantity: item.quantity,
@@ -263,4 +277,49 @@ export async function getFullLocalizedRecipe(
   };
 
   return fullRecipe;
+}
+
+export function mapRecipeToCard(recipe: Recipe): RecipeCard {
+  return {
+    id: recipe.id,
+    title: recipe.title,
+    slug: recipe.slug,
+    description: recipe.description,
+    image_url: recipe.image_url || '',
+    total_time: recipe.total_time,
+    servings: recipe.servings,
+    featured: recipe.featured || false,
+    tags: [], // Fetch separately if needed
+  };
+}
+
+export async function getRecipesPaginated(
+  page: number = 1,
+  limit: number = 12,
+  filters?: RecipeFilters
+): Promise<PaginatedResponse<Recipe>> {
+  const offset = (page - 1) * limit;
+
+  let query = supabase
+    .from('recipes')
+    .select('*, count', { count: 'exact' })
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
+
+  // Apply filters...
+
+  const { data, error, count } = await query;
+
+  if (error) throw error;
+
+  return {
+    data: data || [],
+    pagination: {
+      page,
+      limit,
+      total: count || 0,
+      totalPages: Math.ceil((count || 0) / limit),
+    },
+    error: null,
+  };
 }
