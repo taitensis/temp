@@ -1,4 +1,3 @@
-// FIX: Properly working filters with all options
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -13,7 +12,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Search, Filter, X } from 'lucide-react';
-import { useTranslations } from '@/lib/i18n';
 import type { Language, RecipeFilters as Filters, Difficulty, Season } from '@/lib/types';
 
 type SortByOption = 'newest' | 'popular' | 'rating' | 'quickest';
@@ -26,6 +24,138 @@ interface RecipeFiltersProps {
   tags?: Array<{ id: string; name: string }>;
 }
 
+// Translations object for React component (can't use server-side useTranslations)
+const translations = {
+  en: {
+    search: 'Search recipes...',
+    sortBy: 'Sort by',
+    title: 'Filters',
+    difficulty: 'Difficulty',
+    time: 'Cooking Time',
+    season: 'Season',
+    categories: 'Categories',
+    tags: 'Tags',
+    rating: 'Min Rating',
+    apply: 'Apply',
+    reset: 'Reset',
+    sortOptions: {
+      newest: 'Newest',
+      popular: 'Most Popular',
+      rating: 'Highest Rated',
+      quickest: 'Quickest',
+    },
+    difficultyOptions: {
+      all: 'All difficulties',
+      easy: 'Easy',
+      medium: 'Medium',
+      hard: 'Hard',
+    },
+    seasonOptions: {
+      all: 'All seasons',
+      spring: 'Spring',
+      summer: 'Summer',
+      autumn: 'Autumn',
+      winter: 'Winter',
+    },
+  },
+  fr: {
+    search: 'Rechercher des recettes...',
+    sortBy: 'Trier par',
+    title: 'Filtres',
+    difficulty: 'Difficulté',
+    time: 'Temps de cuisson',
+    season: 'Saison',
+    categories: 'Catégories',
+    tags: 'Étiquettes',
+    rating: 'Note min.',
+    apply: 'Appliquer',
+    reset: 'Réinitialiser',
+    sortOptions: {
+      newest: 'Plus récent',
+      popular: 'Plus populaire',
+      rating: 'Mieux noté',
+      quickest: 'Plus rapide',
+    },
+    difficultyOptions: {
+      all: 'Toutes les difficultés',
+      easy: 'Facile',
+      medium: 'Moyen',
+      hard: 'Difficile',
+    },
+    seasonOptions: {
+      all: 'Toutes les saisons',
+      spring: 'Printemps',
+      summer: 'Été',
+      autumn: 'Automne',
+      winter: 'Hiver',
+    },
+  },
+  es: {
+    search: 'Buscar recetas...',
+    sortBy: 'Ordenar por',
+    title: 'Filtros',
+    difficulty: 'Dificultad',
+    time: 'Tiempo de cocción',
+    season: 'Temporada',
+    categories: 'Categorías',
+    tags: 'Etiquetas',
+    rating: 'Calificación mín.',
+    apply: 'Aplicar',
+    reset: 'Restablecer',
+    sortOptions: {
+      newest: 'Más reciente',
+      popular: 'Más popular',
+      rating: 'Mejor calificado',
+      quickest: 'Más rápido',
+    },
+    difficultyOptions: {
+      all: 'Todas las dificultades',
+      easy: 'Fácil',
+      medium: 'Medio',
+      hard: 'Difícil',
+    },
+    seasonOptions: {
+      all: 'Todas las temporadas',
+      spring: 'Primavera',
+      summer: 'Verano',
+      autumn: 'Otoño',
+      winter: 'Invierno',
+    },
+  },
+  nl: {
+    search: 'Recepten zoeken...',
+    sortBy: 'Sorteren op',
+    title: 'Filters',
+    difficulty: 'Moeilijkheidsgraad',
+    time: 'Kooktijd',
+    season: 'Seizoen',
+    categories: 'Categorieën',
+    tags: 'Tags',
+    rating: 'Min. beoordeling',
+    apply: 'Toepassen',
+    reset: 'Resetten',
+    sortOptions: {
+      newest: 'Nieuwste',
+      popular: 'Populairste',
+      rating: 'Hoogst beoordeeld',
+      quickest: 'Snelste',
+    },
+    difficultyOptions: {
+      all: 'Alle moeilijkheidsgraden',
+      easy: 'Makkelijk',
+      medium: 'Gemiddeld',
+      hard: 'Moeilijk',
+    },
+    seasonOptions: {
+      all: 'Alle seizoenen',
+      spring: 'Lente',
+      summer: 'Zomer',
+      autumn: 'Herfst',
+      winter: 'Winter',
+    },
+  },
+};
+
 export default function RecipeFilters({
   lang,
   initialFilters = {},
@@ -33,13 +163,8 @@ export default function RecipeFilters({
   tags = [],
   onFiltersChange,
 }: RecipeFiltersProps) {
-  const [mounted, setMounted] = useState(false);
-  const t = useTranslations(lang);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const t = translations[lang] || translations.en;
 
-  if (!mounted) return null;
   const [filters, setFilters] = useState<Filters>({
     search: '',
     difficulty: undefined,
@@ -55,7 +180,7 @@ export default function RecipeFilters({
 
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Sync with URL params
+  // Sync with URL params (client-side only)
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -137,7 +262,7 @@ export default function RecipeFilters({
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
-          placeholder={t.filters.search}
+          placeholder={t.search}
           value={filters.search || ''}
           onChange={(e) => setFilters((prev) => ({ ...prev, search: e.target.value }))}
           className="pl-9 pr-10"
@@ -147,6 +272,7 @@ export default function RecipeFilters({
             type="button"
             onClick={() => setFilters((prev) => ({ ...prev, search: '' }))}
             className="absolute right-3 top-1/2 -translate-y-1/2"
+            aria-label="Clear search"
           >
             <X className="h-4 w-4" />
           </button>
@@ -159,13 +285,13 @@ export default function RecipeFilters({
         onValueChange={(value: SortByOption) => setFilters((prev) => ({ ...prev, sortBy: value }))}
       >
         <SelectTrigger>
-          <SelectValue placeholder={t.filters.sortBy} />
+          <SelectValue placeholder={t.sortBy} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="newest">{t.filters.sortOptions.newest}</SelectItem>
-          <SelectItem value="popular">{t.filters.sortOptions.popular}</SelectItem>
-          <SelectItem value="rating">{t.filters.sortOptions.rating}</SelectItem>
-          <SelectItem value="quickest">{t.filters.sortOptions.quickest}</SelectItem>
+          <SelectItem value="newest">{t.sortOptions.newest}</SelectItem>
+          <SelectItem value="popular">{t.sortOptions.popular}</SelectItem>
+          <SelectItem value="rating">{t.sortOptions.rating}</SelectItem>
+          <SelectItem value="quickest">{t.sortOptions.quickest}</SelectItem>
         </SelectContent>
       </Select>
 
@@ -174,10 +300,10 @@ export default function RecipeFilters({
         <button
           type="button"
           onClick={() => setIsExpanded(!isExpanded)}
-          className="flex items-center gap-2 text-sm font-medium"
+          className="flex items-center gap-2 text-sm font-medium w-full"
         >
           <Filter className="h-4 w-4" />
-          {t.filters.title}
+          {t.title}
           {activeFilterCount > 0 && (
             <span className="ml-1 px-2 py-0.5 bg-primary text-primary-foreground text-xs rounded-full">
               {activeFilterCount}
@@ -190,7 +316,7 @@ export default function RecipeFilters({
         <div className="space-y-4 pt-2">
           {/* Difficulty */}
           <div>
-            <Label>{t.filters.difficulty}</Label>
+            <Label>{t.difficulty}</Label>
             <Select
               value={filters.difficulty || ''}
               onValueChange={(value: '' | Difficulty) =>
@@ -201,20 +327,20 @@ export default function RecipeFilters({
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder={t.filters.difficultyOptions.all} />
+                <SelectValue placeholder={t.difficultyOptions.all} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">{t.filters.difficultyOptions.all}</SelectItem>
-                <SelectItem value="easy">{t.filters.difficultyOptions.easy}</SelectItem>
-                <SelectItem value="medium">{t.filters.difficultyOptions.medium}</SelectItem>
-                <SelectItem value="hard">{t.filters.difficultyOptions.hard}</SelectItem>
+                <SelectItem value="">{t.difficultyOptions.all}</SelectItem>
+                <SelectItem value="easy">{t.difficultyOptions.easy}</SelectItem>
+                <SelectItem value="medium">{t.difficultyOptions.medium}</SelectItem>
+                <SelectItem value="hard">{t.difficultyOptions.hard}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Time Range */}
           <div>
-            <Label>{t.filters.time}</Label>
+            <Label>{t.time}</Label>
             <div className="flex items-center gap-2">
               <Input
                 type="number"
@@ -251,7 +377,7 @@ export default function RecipeFilters({
 
           {/* Season */}
           <div>
-            <Label>{t.filters.season}</Label>
+            <Label>{t.season}</Label>
             <Select
               value={filters.season || ''}
               onValueChange={(value: '' | Season) =>
@@ -262,14 +388,14 @@ export default function RecipeFilters({
               }
             >
               <SelectTrigger>
-                <SelectValue placeholder={t.filters.seasonOptions.all} />
+                <SelectValue placeholder={t.seasonOptions.all} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">{t.filters.seasonOptions.all}</SelectItem>
-                <SelectItem value="spring">{t.filters.seasonOptions.spring}</SelectItem>
-                <SelectItem value="summer">{t.filters.seasonOptions.summer}</SelectItem>
-                <SelectItem value="autumn">{t.filters.seasonOptions.autumn}</SelectItem>
-                <SelectItem value="winter">{t.filters.seasonOptions.winter}</SelectItem>
+                <SelectItem value="">{t.seasonOptions.all}</SelectItem>
+                <SelectItem value="spring">{t.seasonOptions.spring}</SelectItem>
+                <SelectItem value="summer">{t.seasonOptions.summer}</SelectItem>
+                <SelectItem value="autumn">{t.seasonOptions.autumn}</SelectItem>
+                <SelectItem value="winter">{t.seasonOptions.winter}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -277,10 +403,10 @@ export default function RecipeFilters({
           {/* Categories */}
           {categories.length > 0 && (
             <div>
-              <Label>{t.filters.categories}</Label>
+              <Label>{t.categories}</Label>
               <div className="space-y-2 max-h-40 overflow-y-auto">
                 {categories.map((category) => (
-                  <label key={category.id} className="flex items-center gap-2">
+                  <label key={category.id} className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={filters.categories?.includes(category.id) || false}
@@ -302,7 +428,7 @@ export default function RecipeFilters({
           {/* Tags */}
           {tags.length > 0 && (
             <div>
-              <Label>{t.filters.tags}</Label>
+              <Label>{t.tags}</Label>
               <div className="flex flex-wrap gap-2">
                 {tags.map((tag) => {
                   const isSelected = filters.tags?.includes(tag.id) || false;
@@ -333,7 +459,7 @@ export default function RecipeFilters({
           {/* Rating */}
           <div>
             <Label>
-              {t.filters.rating}: {filters.minRating || 0} ★
+              {t.rating}: {filters.minRating || 0} ★
             </Label>
             <Slider
               value={[filters.minRating || 0]}
@@ -353,10 +479,10 @@ export default function RecipeFilters({
           {/* Action Buttons */}
           <div className="flex gap-2 pt-2">
             <Button type="submit" className="flex-1">
-              {t.filters.apply}
+              {t.apply}
             </Button>
             <Button type="button" variant="outline" onClick={resetFilters}>
-              {t.filters.reset}
+              {t.reset}
             </Button>
           </div>
         </div>

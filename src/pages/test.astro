@@ -1,0 +1,89 @@
+---
+// test-page.astro - Put this in src/pages/test.astro
+import { supabase } from "@/lib/supabase";
+
+console.log('\n🔍 === SUPABASE TEST PAGE ===\n');
+
+// Test 1: Direct query without filters
+console.log('1️⃣ Testing direct recipes query...');
+const { data: directRecipes, error: directError } = await supabase
+  .from('recipes')
+  .select('id, image_url, featured, servings')
+  .limit(5);
+
+console.log('Direct recipes:', directRecipes?.length || 0);
+console.log('Direct error:', directError);
+console.log('Sample:', directRecipes?.[0]);
+
+// Test 2: With translations (inner join)
+console.log('\n2️⃣ Testing with translations (inner join)...');
+const { data: withTranslations, error: transError } = await supabase
+  .from('recipes')
+  .select(`
+    id,
+    image_url,
+    featured,
+    recipe_translations!inner(slug, title, lang)
+  `)
+  .eq('recipe_translations.lang', 'en')
+  .limit(5);
+
+console.log('With translations:', withTranslations?.length || 0);
+console.log('Translation error:', transError);
+console.log('Sample:', withTranslations?.[0]);
+
+// Test 3: Check what languages exist
+console.log('\n3️⃣ Checking available languages...');
+const { data: langs } = await supabase
+  .from('recipe_translations')
+  .select('lang');
+
+const uniqueLangs = [...new Set(langs?.map(l => l.lang))];
+console.log('Available languages:', uniqueLangs);
+
+// Test 4: Count recipes per language
+console.log('\n4️⃣ Recipes per language...');
+for (const lang of uniqueLangs) {
+  const { count } = await supabase
+    .from('recipe_translations')
+    .select('*', { count: 'exact', head: true })
+    .eq('lang', lang);
+  console.log(`${lang}: ${count} translations`);
+}
+
+// Test 5: Environment check
+console.log('\n5️⃣ Environment variables...');
+console.log('SUPABASE_URL:', import.meta.env.PUBLIC_SUPABASE_URL ? '✅' : '❌');
+console.log('SUPABASE_KEY:', import.meta.env.PUBLIC_SUPABASE_ANON_KEY ? '✅' : '❌');
+
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supabase Test</title>
+</head>
+<body>
+  <h1>Supabase Connection Test</h1>
+  <p>Check your console/terminal for results!</p>
+  
+  <div style="font-family: monospace; padding: 20px; background: #f5f5f5; margin: 20px;">
+    <h2>Quick Results:</h2>
+    <p>Direct recipes found: <strong>{directRecipes?.length || 0}</strong></p>
+    <p>With EN translations: <strong>{withTranslations?.length || 0}</strong></p>
+    <p>Available languages: <strong>{uniqueLangs.join(', ')}</strong></p>
+    
+    {directError && <p style="color: red;">Error: {directError.message}</p>}
+    {transError && <p style="color: red;">Translation Error: {transError.message}</p>}
+  </div>
+
+  {withTranslations && withTranslations.length > 0 && (
+    <div style="padding: 20px;">
+      <h2>Sample Recipe:</h2>
+      <pre>{JSON.stringify(withTranslations[0], null, 2)}</pre>
+    </div>
+  )}
+</body>
+</html>

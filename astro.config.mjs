@@ -8,7 +8,7 @@ export default defineConfig({
   base: '/nourriture-quotidienne', // repo
 
   i18n: {
-    locales: ['en', 'fr'],
+    locales: ['en', 'es', 'fr', 'nl'],
     defaultLocale: 'en',
     routing: {
       prefixDefaultLocale: true,

@@ -818,6 +818,7 @@ export type Database = {
       };
     };
     Functions: {
+      increment_view_count: { Args: { recipe_id: string }; Returns: undefined };
       show_limit: { Args: never; Returns: number };
       show_trgm: { Args: { '': string }; Returns: string[] };
     };

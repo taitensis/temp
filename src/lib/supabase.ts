@@ -9,7 +9,7 @@ import type {
   Language,
   LocalizedRecipePath,
 } from './types';
-import { transformToFullLocalizedRecipe } from './tranform/transformToFullLocalizedRecipe';
+import { transformToFullLocalizedRecipe } from '@/lib/transform/transformToFullLocalizedRecipe';
 
 const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
 const supabaseKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
@@ -20,7 +20,9 @@ if (!supabaseUrl || !supabaseKey) {
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseKey);
 
-// FIX: Implement working filters
+/**
+ * Fetch recipes with filters and pagination
+ */
 export async function getRecipes(
   filters?: RecipeFilters,
   page: number = 1,
@@ -31,27 +33,25 @@ export async function getRecipes(
       .from('recipes')
       .select(
         `
-  id,
-  season,
-  total_time,
-  featured,
-  recipe_translations!inner(slug, title, lang),
-  recipe_nutrition(*),
-  recipe_tags(tag_id)
-`,
+        id,
+        image_url,
+        season,
+        total_time,
+        featured,
+        servings,
+        recipe_translations!inner(slug, title, description, lang),
+        recipe_nutrition(calories, protein)
+      `,
         { count: 'exact' }
       )
       .eq('recipe_translations.lang', filters?.lang ?? 'en');
 
     // Search filter
     if (filters?.search) {
-      query = query.textSearch('title', filters.search, {
-        type: 'websearch',
-        config: 'english',
-      });
+      query = query.ilike('recipe_translations.title', `%${filters.search}%`);
     }
 
-    // Difficulty filter (after adding to DB)
+    // Difficulty filter (when added to DB schema)
     if (filters?.difficulty) {
       query = query.eq('difficulty', filters.difficulty);
     }
@@ -98,7 +98,7 @@ export async function getRecipes(
 
     if (error) throw error;
 
-    // If filtering by tags, filter in JS (until we fix the query)
+    // If filtering by tags, filter in JS (until we add proper join)
     let filteredData = data || [];
     if (filters?.tags?.length && data) {
       const { data: taggedRecipes } = await supabase
@@ -110,19 +110,29 @@ export async function getRecipes(
       filteredData = data.filter((r) => recipeIds.has(r.id));
     }
 
-    const mappedData: RecipeCard[] = filteredData.map((r) => ({
-      id: r.id,
-      slug: r.recipe_translations[0].slug,
-      title: r.recipe_translations[0].title,
-      description: null, // not selected in this query → fine
-      image_url: null, // not selected in this query → fine
-      servings: null, // optional → fine
-      total_time: r.total_time,
-      featured: r.featured,
-      season: r.season,
-      calories: r.recipe_nutrition?.calories ?? null,
-      protein: r.recipe_nutrition?.protein ?? null,
-    }));
+    // Transform data to RecipeCard format
+    const mappedData: RecipeCard[] = filteredData.map((r) => {
+      const translation = Array.isArray(r.recipe_translations)
+        ? r.recipe_translations[0]
+        : r.recipe_translations;
+      const nutrition = Array.isArray(r.recipe_nutrition)
+        ? r.recipe_nutrition[0]
+        : r.recipe_nutrition;
+
+      return {
+        id: r.id,
+        slug: translation?.slug || '',
+        title: translation?.title || '',
+        description: translation?.description || null,
+        image_url: r.image_url,
+        servings: r.servings,
+        total_time: r.total_time,
+        featured: r.featured,
+        season: r.season,
+        calories: nutrition?.calories ?? null,
+        protein: nutrition?.protein ?? null,
+      };
+    });
 
     return {
       data: mappedData,
@@ -144,7 +154,9 @@ export async function getRecipes(
   }
 }
 
-// FIX: Optimize with single query
+/**
+ * Fetch a single recipe with all localized details
+ */
 export async function getFullLocalizedRecipe(
   recipeId: string,
   lang: Language
@@ -156,23 +168,23 @@ export async function getFullLocalizedRecipe(
       .select(
         `
         *,
-        recipe_translations!inner(title, description),
+        recipe_translations!inner(title, description, slug, lang),
         recipe_nutrition(*),
         recipe_ingredients(
           *,
           ingredient:ingredients(
             *,
-            ingredient_translations!inner(name)
+            ingredient_translations!inner(name, lang)
           )
         ),
         recipe_steps(
           *,
-          recipe_step_translations!inner(instruction)
+          recipe_step_translations!inner(instruction, lang)
         ),
         recipe_tags(
           tag:tags(
             *,
-            tag_translations!inner(name)
+            tag_translations!inner(name, lang)
           )
         ),
         recipe_times(
@@ -199,16 +211,23 @@ export async function getFullLocalizedRecipe(
   }
 }
 
-// ADD: Increment view counter
+/**
+ * Increment view count for a recipe
+ */
 export async function incrementRecipeViews(recipeId: string): Promise<void> {
   try {
-    await supabase.rpc('increment_view_count' as any, { recipe_id: recipeId });
+    const { error } = await supabase.rpc('increment_view_count', { recipe_id: recipeId });
+    if (error) {
+      console.warn('View count increment function not available:', error.message);
+    }
   } catch (error) {
     console.error('Error incrementing views:', error);
   }
 }
 
-// ADD: User interactions
+/**
+ * Toggle favorite status for a user
+ */
 export async function toggleFavorite(
   recipeId: string,
   userId: string
@@ -240,6 +259,9 @@ export async function toggleFavorite(
   }
 }
 
+/**
+ * Get all localized recipe paths for static site generation
+ */
 export async function getLocalizedRecipePaths(): Promise<LocalizedRecipePath[]> {
   const { data, error } = await supabase
     .from('recipe_translations')
@@ -250,11 +272,13 @@ export async function getLocalizedRecipePaths(): Promise<LocalizedRecipePath[]> 
     return [];
   }
 
-  return data
-    .filter((t) => t.recipe_id !== null)
-    .map((t) => ({
-      recipe_id: t.recipe_id as string,
-      slug: t.slug,
-      lang: t.lang,
-    }));
+  return (
+    data
+      ?.filter((t) => t.recipe_id !== null)
+      .map((t) => ({
+        recipe_id: t.recipe_id as string,
+        slug: t.slug,
+        lang: t.lang as Language,
+      })) || []
+  );
 }

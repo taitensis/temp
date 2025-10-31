@@ -1,0 +1,527 @@
+{
+  "admins": {
+    "count": 1,
+    "sample": [
+      {
+        "id": "c8bf5a62-6a8f-4596-8ab5-da3b19a977ac",
+        "created_at": "2025-10-19T10:58:15.295319+00:00"
+      }
+    ],
+    "columns": [
+      "id",
+      "created_at"
+    ]
+  },
+  "categories": {
+    "count": 0,
+    "sample": [],
+    "columns": []
+  },
+  "category_translations": {
+    "count": 0,
+    "sample": [],
+    "columns": []
+  },
+  "ingredients": {
+    "count": 115,
+    "sample": [
+      {
+        "id": "29f6ed3d-147e-481d-b25d-cf1878043324",
+        "name": "flour",
+        "created_at": "2025-10-18T15:34:15.89875+00:00"
+      },
+      {
+        "id": "441e50d3-6e8a-4530-80ac-677b238660ff",
+        "name": "water",
+        "created_at": "2025-10-18T15:34:15.89875+00:00"
+      },
+      {
+        "id": "4113d044-eeb2-493e-8069-e2340dcc0ade",
+        "name": "yeast",
+        "created_at": "2025-10-18T15:34:15.89875+00:00"
+      }
+    ],
+    "columns": [
+      "id",
+      "name",
+      "created_at"
+    ]
+  },
+  "ingredient_translations": {
+    "count": 460,
+    "sample": [
+      {
+        "id": "8b6e620f-b64d-4528-8b1a-0cb9543fb81b",
+        "ingredient_id": "29f6ed3d-147e-481d-b25d-cf1878043324",
+        "lang": "en",
+        "name": "flour"
+      },
+      {
+        "id": "a97afdf3-7450-40c6-aaa6-dee88c5b6ba4",
+        "ingredient_id": "29f6ed3d-147e-481d-b25d-cf1878043324",
+        "lang": "fr",
+        "name": "farine"
+      },
+      {
+        "id": "6bc7de10-e6b9-4d76-bcd2-e0aad6965e1e",
+        "ingredient_id": "29f6ed3d-147e-481d-b25d-cf1878043324",
+        "lang": "es",
+        "name": "harina"
+      }
+    ],
+    "columns": [
+      "id",
+      "ingredient_id",
+      "lang",
+      "name"
+    ]
+  },
+  "recipe_categories": {
+    "count": 0,
+    "sample": [],
+    "columns": []
+  },
+  "recipe_ingredients": {
+    "count": 43,
+    "sample": [
+      {
+        "id": "9462014d-f81f-4fb8-94ae-2040b8540998",
+        "recipe_id": "d00ec7b3-04e8-4100-ba72-a13786d94568",
+        "ingredient_id": "14e34b35-8a5d-4b52-b0d1-b95ea3e058a2",
+        "section": "for the topping",
+        "quantity": 6,
+        "unit": "leaf",
+        "note": "fresh",
+        "position": 3,
+        "created_at": "2025-10-18T15:40:03.935684+00:00"
+      },
+      {
+        "id": "655d8948-60e3-4aed-9902-10b8e46f9dda",
+        "recipe_id": "d00ec7b3-04e8-4100-ba72-a13786d94568",
+        "ingredient_id": "29f6ed3d-147e-481d-b25d-cf1878043324",
+        "section": "for the dough",
+        "quantity": 250,
+        "unit": "g",
+        "note": null,
+        "position": 1,
+        "created_at": "2025-10-18T15:36:06.426403+00:00"
+      },
+      {
+        "id": "d2f3b94d-891d-4717-b64f-ca260588b256",
+        "recipe_id": "d00ec7b3-04e8-4100-ba72-a13786d94568",
+        "ingredient_id": "1d0e1884-1acb-425b-94b6-9baa71cfcaaa",
+        "section": "for the topping",
+        "quantity": 5,
+        "unit": "ml",
+        "note": "drizzle",
+        "position": 4,
+        "created_at": "2025-10-18T15:40:17.719127+00:00"
+      }
+    ],
+    "columns": [
+      "id",
+      "recipe_id",
+      "ingredient_id",
+      "section",
+      "quantity",
+      "unit",
+      "note",
+      "position",
+      "created_at"
+    ]
+  },
+  "recipe_nutrition": {
+    "count": 7,
+    "sample": [
+      {
+        "id": "95a60850-7f77-48ce-9475-dda5a741b6dc",
+        "recipe_id": "d00ec7b3-04e8-4100-ba72-a13786d94568",
+        "calories": 720,
+        "fat": 25,
+        "carbs": 90,
+        "protein": 30,
+        "sodium": 2.5,
+        "sugar": 5,
+        "fiber": 3,
+        "created_at": "2025-10-18T17:00:57.984836+00:00",
+        "saturated_fat": null,
+        "trans_fat": null,
+        "monounsaturated_fat": null,
+        "polyunsaturated_fat": null
+      },
+      {
+        "id": "8d97e3bd-7206-4c7a-8d95-6fd0214f7fa6",
+        "recipe_id": "1004c3fa-dd4c-4d35-93a4-10c30054083e",
+        "calories": 558,
+        "fat": 32,
+        "carbs": 63,
+        "protein": 6,
+        "sodium": 261,
+        "sugar": 41,
+        "fiber": 2,
+        "created_at": "2025-10-22T17:44:00+00:00",
+        "saturated_fat": null,
+        "trans_fat": null,
+        "monounsaturated_fat": null,
+        "polyunsaturated_fat": null
+      },
+      {
+        "id": "85fa06b3-b41f-47f9-9596-665938c05888",
+        "recipe_id": "e5b0cb1d-ad7a-4585-8504-d9b034e1b468",
+        "calories": 282,
+        "fat": 13,
+        "carbs": 37,
+        "protein": 5,
+        "sodium": 155,
+        "sugar": 30,
+        "fiber": 1,
+        "created_at": "2025-10-22T17:48:00+00:00",
+        "saturated_fat": null,
+        "trans_fat": null,
+        "monounsaturated_fat": null,
+        "polyunsaturated_fat": null
+      }
+    ],
+    "columns": [
+      "id",
+      "recipe_id",
+      "calories",
+      "fat",
+      "carbs",
+      "protein",
+      "sodium",
+      "sugar",
+      "fiber",
+      "created_at",
+      "saturated_fat",
+      "trans_fat",
+      "monounsaturated_fat",
+      "polyunsaturated_fat"
+    ]
+  },
+  "recipe_ratings": {
+    "count": 0,
+    "sample": [],
+    "columns": []
+  },
+  "recipe_step_translations": {
+    "count": 84,
+    "sample": [
+      {
+        "id": "0ee259c8-f967-4f6f-8b35-44a67a229335",
+        "recipe_step_id": "b0a1266a-f041-4e44-a61a-4f6436779871",
+        "lang": "en",
+        "instruction": "Mix flour, yeast, and salt in a bowl."
+      },
+      {
+        "id": "4b632021-cd34-4e61-bc5d-e0fe79fc9019",
+        "recipe_step_id": "b0a1266a-f041-4e44-a61a-4f6436779871",
+        "lang": "fr",
+        "instruction": "Mix flour, yeast, and salt in a bowl."
+      },
+      {
+        "id": "267a4cd6-5087-409f-b909-54846e4fcbd7",
+        "recipe_step_id": "b0a1266a-f041-4e44-a61a-4f6436779871",
+        "lang": "es",
+        "instruction": "Mix flour, yeast, and salt in a bowl."
+      }
+    ],
+    "columns": [
+      "id",
+      "recipe_step_id",
+      "lang",
+      "instruction"
+    ]
+  },
+  "recipe_steps": {
+    "count": 21,
+    "sample": [
+      {
+        "id": "b0a1266a-f041-4e44-a61a-4f6436779871",
+        "recipe_id": "d00ec7b3-04e8-4100-ba72-a13786d94568",
+        "position": 1,
+        "instruction": "Mix flour, yeast, and salt in a bowl.",
+        "note": "dry mix",
+        "created_at": "2025-10-18T16:00:04.565827+00:00"
+      },
+      {
+        "id": "42ac51ec-b147-461e-b5c6-120962e5e0bb",
+        "recipe_id": "d00ec7b3-04e8-4100-ba72-a13786d94568",
+        "position": 2,
+        "instruction": "Add water and olive oil. Knead until smooth.",
+        "note": "adjust water if dry",
+        "created_at": "2025-10-18T16:00:04.565827+00:00"
+      },
+      {
+        "id": "5bc174c5-1d06-4084-b792-4bd77e635cac",
+        "recipe_id": "d00ec7b3-04e8-4100-ba72-a13786d94568",
+        "position": 3,
+        "instruction": "Cover and let rise until doubled in size.",
+        "note": "warm place",
+        "created_at": "2025-10-18T16:00:04.565827+00:00"
+      }
+    ],
+    "columns": [
+      "id",
+      "recipe_id",
+      "position",
+      "instruction",
+      "note",
+      "created_at"
+    ]
+  },
+  "recipe_tags": {
+    "count": 15,
+    "sample": [
+      {
+        "id": "2a0d92d5-e466-4c83-b97b-fe735a2d1b07",
+        "recipe_id": "d00ec7b3-04e8-4100-ba72-a13786d94568",
+        "tag_id": "2bc43138-250d-4225-bfcc-0bdca49c3927",
+        "created_at": "2025-10-19T10:37:13.47634+00:00"
+      },
+      {
+        "id": "430d67e5-3d73-41bb-b02f-984a775af9eb",
+        "recipe_id": "d00ec7b3-04e8-4100-ba72-a13786d94568",
+        "tag_id": "472771f1-4494-44e2-a224-d7bb8276522b",
+        "created_at": "2025-10-19T10:37:45.139337+00:00"
+      },
+      {
+        "id": "b2c60186-3b63-424d-8556-76b85e379953",
+        "recipe_id": "d00ec7b3-04e8-4100-ba72-a13786d94568",
+        "tag_id": "5c2d79a5-ff22-4ff8-af86-f819a1ff51c4",
+        "created_at": "2025-10-19T10:38:06.440048+00:00"
+      }
+    ],
+    "columns": [
+      "id",
+      "recipe_id",
+      "tag_id",
+      "created_at"
+    ]
+  },
+  "recipe_times": {
+    "count": 1,
+    "sample": [
+      {
+        "id": "524c8ffb-53f7-43a6-a3c7-76b2e8d28faf",
+        "recipe_id": "1004c3fa-dd4c-4d35-93a4-10c30054083e",
+        "times_id": "b7dac8ee-9515-480e-921a-f78075186703",
+        "minutes": 90,
+        "created_at": "2025-10-22T15:27:08.963377+00:00"
+      }
+    ],
+    "columns": [
+      "id",
+      "recipe_id",
+      "times_id",
+      "minutes",
+      "created_at"
+    ]
+  },
+  "recipe_translations": {
+    "count": 20,
+    "sample": [
+      {
+        "id": "909bcf3a-9907-4814-bbf3-8982415d7065",
+        "recipe_id": "2af17f13-0707-465d-b6ab-f84a84750865",
+        "lang": "en",
+        "title": "Chile Crisp Fried Rice With Tofu and Edamame",
+        "description": "This vegan fried rice uses chile crisp oil, crumbled tofu, and edamame. Substitute with frozen peas or corn. Add a bit of chile crisp adds for more flavor.",
+        "slug": "chile-crisp-fried-rice-with-tofu-and-edamame"
+      },
+      {
+        "id": "38706096-68a1-4367-87fe-1be1b754cbd7",
+        "recipe_id": "2af17f13-0707-465d-b6ab-f84a84750865",
+        "lang": "fr",
+        "title": "Chile Crisp Fried Rice With Tofu and Edamame",
+        "description": "This vegan fried rice uses chile crisp oil, crumbled tofu, and edamame. Substitute with frozen peas or corn. Add a bit of chile crisp adds for more flavor.",
+        "slug": "chile-crisp-fried-rice-with-tofu-and-edamame"
+      },
+      {
+        "id": "d0c6824f-316e-4212-9821-e40f74ad17bd",
+        "recipe_id": "2af17f13-0707-465d-b6ab-f84a84750865",
+        "lang": "es",
+        "title": "Chile Crisp Fried Rice With Tofu and Edamame",
+        "description": "This vegan fried rice uses chile crisp oil, crumbled tofu, and edamame. Substitute with frozen peas or corn. Add a bit of chile crisp adds for more flavor.",
+        "slug": "chile-crisp-fried-rice-with-tofu-and-edamame"
+      }
+    ],
+    "columns": [
+      "id",
+      "recipe_id",
+      "lang",
+      "title",
+      "description",
+      "slug"
+    ]
+  },
+  "recipes": {
+    "count": 5,
+    "sample": [
+      {
+        "id": "2af17f13-0707-465d-b6ab-f84a84750865",
+        "title": "Chile Crisp Fried Rice With Tofu and Edamame",
+        "description": "This vegan fried rice uses chile crisp oil, crumbled tofu, and edamame. Substitute with frozen peas or corn. Add a bit of chile crisp adds for more flavor.",
+        "servings": 4,
+        "serving_type": "servings",
+        "total_time": 20,
+        "featured": true,
+        "season": [
+          "autumn"
+        ],
+        "image_url": "https://svdffsmhynmgggwypumm.supabase.co/storage/v1/object/public/recipe-images/placeholder-recipe.webp",
+        "created_at": "2025-10-20T14:59:43.917042+00:00",
+        "updated_at": "2025-10-28T09:56:56.836038+00:00",
+        "difficulty": null,
+        "prep_time": null,
+        "cook_time": null,
+        "rating": 0,
+        "rating_count": 0,
+        "view_count": 0,
+        "created_by": null,
+        "source_url": null,
+        "video_url": null
+      },
+      {
+        "id": "e5b0cb1d-ad7a-4585-8504-d9b034e1b468",
+        "title": "Lemon Squares",
+        "description": "These sweet and tart squares use buttery shortbread with a lemon topping and confectioners' sugar. They’re great for any occasion, from weeknight dinners to weekend snacks with tea.",
+        "servings": 16,
+        "serving_type": "squares",
+        "total_time": 60,
+        "featured": false,
+        "season": null,
+        "image_url": "https://svdffsmhynmgggwypumm.supabase.co/storage/v1/object/public/recipe-images/lemon-squares.webp",
+        "created_at": "2025-10-22T17:17:18.31104+00:00",
+        "updated_at": "2025-10-22T18:12:52.995908+00:00",
+        "difficulty": null,
+        "prep_time": null,
+        "cook_time": null,
+        "rating": 0,
+        "rating_count": 0,
+        "view_count": 0,
+        "created_by": null,
+        "source_url": null,
+        "video_url": null
+      },
+      {
+        "id": "1004c3fa-dd4c-4d35-93a4-10c30054083e",
+        "title": "Upside-Down Blood Orange Cake",
+        "description": "Blood oranges shine in this easy cornmeal and flour cake. Bake it in under an hour for a simple winter dessert.",
+        "servings": 8,
+        "serving_type": "servings",
+        "total_time": 90,
+        "featured": false,
+        "season": null,
+        "image_url": "https://svdffsmhynmgggwypumm.supabase.co/storage/v1/object/public/recipe-images/placeholder-recipe.webp",
+        "created_at": "2025-10-22T15:19:47.089396+00:00",
+        "updated_at": "2025-10-22T15:21:59.623153+00:00",
+        "difficulty": null,
+        "prep_time": null,
+        "cook_time": null,
+        "rating": 0,
+        "rating_count": 0,
+        "view_count": 0,
+        "created_by": null,
+        "source_url": null,
+        "video_url": null
+      }
+    ],
+    "columns": [
+      "id",
+      "title",
+      "description",
+      "servings",
+      "serving_type",
+      "total_time",
+      "featured",
+      "season",
+      "image_url",
+      "created_at",
+      "updated_at",
+      "difficulty",
+      "prep_time",
+      "cook_time",
+      "rating",
+      "rating_count",
+      "view_count",
+      "created_by",
+      "source_url",
+      "video_url"
+    ]
+  },
+  "tag_translations": {
+    "count": 32,
+    "sample": [
+      {
+        "id": "5015ab21-4d50-4f91-8b9b-6f85e14586fb",
+        "tag_id": "5c2d79a5-ff22-4ff8-af86-f819a1ff51c4",
+        "lang": "en",
+        "name": "Italian"
+      },
+      {
+        "id": "0e6dbad1-4c0c-46a9-b679-d9704c40c93d",
+        "tag_id": "5c2d79a5-ff22-4ff8-af86-f819a1ff51c4",
+        "lang": "fr",
+        "name": "Italien"
+      },
+      {
+        "id": "62b5a1ce-abf4-4b95-9b44-93b41fbe8cee",
+        "tag_id": "5c2d79a5-ff22-4ff8-af86-f819a1ff51c4",
+        "lang": "es",
+        "name": "Italiano"
+      }
+    ],
+    "columns": [
+      "id",
+      "tag_id",
+      "lang",
+      "name"
+    ]
+  },
+  "tags": {
+    "count": 8,
+    "sample": [
+      {
+        "id": "5c2d79a5-ff22-4ff8-af86-f819a1ff51c4",
+        "name": "italian",
+        "created_at": "2025-10-19T10:36:25.44101+00:00"
+      },
+      {
+        "id": "2edf73a7-4680-4870-b37d-de125660d116",
+        "name": "vegetarian",
+        "created_at": "2025-10-19T10:36:34.632829+00:00"
+      },
+      {
+        "id": "472771f1-4494-44e2-a224-d7bb8276522b",
+        "name": "quick",
+        "created_at": "2025-10-19T10:36:43.932045+00:00"
+      }
+    ],
+    "columns": [
+      "id",
+      "name",
+      "created_at"
+    ]
+  },
+  "times": {
+    "count": 1,
+    "sample": [
+      {
+        "id": "b7dac8ee-9515-480e-921a-f78075186703",
+        "name": "total",
+        "created_at": "2025-10-22T15:26:59.83934+00:00"
+      }
+    ],
+    "columns": [
+      "id",
+      "name",
+      "created_at"
+    ]
+  },
+  "user_favorites": {
+    "count": 0,
+    "sample": [],
+    "columns": []
+  }
+}

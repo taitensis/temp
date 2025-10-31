@@ -553,6 +553,7 @@ export type Database = {
           id: string;
           lang: Database['public']['Enums']['lang'];
           recipe_id: string | null;
+          slug: string;
           title: string;
         };
         Insert: {
@@ -560,6 +561,7 @@ export type Database = {
           id?: string;
           lang: Database['public']['Enums']['lang'];
           recipe_id?: string | null;
+          slug: string;
           title: string;
         };
         Update: {
@@ -567,6 +569,7 @@ export type Database = {
           id?: string;
           lang?: Database['public']['Enums']['lang'];
           recipe_id?: string | null;
+          slug?: string;
           title?: string;
         };
         Relationships: [
@@ -609,7 +612,6 @@ export type Database = {
           season: string[] | null;
           serving_type: string | null;
           servings: number | null;
-          slug: string;
           source_url: string | null;
           title: string;
           total_time: number | null;
@@ -632,7 +634,6 @@ export type Database = {
           season?: string[] | null;
           serving_type?: string | null;
           servings?: number | null;
-          slug: string;
           source_url?: string | null;
           title: string;
           total_time?: number | null;
@@ -655,7 +656,6 @@ export type Database = {
           season?: string[] | null;
           serving_type?: string | null;
           servings?: number | null;
-          slug?: string;
           source_url?: string | null;
           title?: string;
           total_time?: number | null;
@@ -779,29 +779,18 @@ export type Database = {
         Row: {
           avg_rating: number | null;
           calories: number | null;
-          cook_time: number | null;
-          created_at: string | null;
-          created_by: string | null;
           description: string | null;
-          difficulty: string | null;
           favorite_count: number | null;
           featured: boolean | null;
           id: string | null;
           image_url: string | null;
-          prep_time: number | null;
+          lang: Database['public']['Enums']['lang'] | null;
           protein: number | null;
-          rating: number | null;
-          rating_count: number | null;
           season: string[] | null;
-          serving_type: string | null;
           servings: number | null;
           slug: string | null;
-          source_url: string | null;
           title: string | null;
           total_time: number | null;
-          updated_at: string | null;
-          video_url: string | null;
-          view_count: number | null;
         };
         Relationships: [];
       };
@@ -815,6 +804,7 @@ export type Database = {
           fiber: number | null;
           id: string | null;
           image_url: string | null;
+          lang: Database['public']['Enums']['lang'] | null;
           protein: number | null;
           salt: number | null;
           season: string[] | null;
@@ -830,7 +820,6 @@ export type Database = {
     Functions: {
       show_limit: { Args: never; Returns: number };
       show_trgm: { Args: { '': string }; Returns: string[] };
-      increment_view_count: { Args: { recipe_id: string }; Returns: void };
     };
     Enums: {
       lang: 'en' | 'es' | 'fr' | 'nl';

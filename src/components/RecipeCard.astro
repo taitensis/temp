@@ -1,59 +1,57 @@
 ---
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Clock, Users, Star } from 'lucide-react';
-import type { RecipeCardProps, Language, RecipeCard, FullRecipe, RecipeNutrition } from '@/lib/types';
+import type { Language, RecipeCard as RecipeCardType, FullLocalizedRecipe } from '@/lib/types';
 import { getRelativeLocaleUrl } from 'astro:i18n';
 import { formatTime, formatRating, getDifficultyColor, truncateText } from '@/lib/utils';
 import { useTranslations } from '@/lib/i18n';
 
-interface Props extends RecipeCardProps {
+// Props interface
+interface Props {
+  recipe: RecipeCardType | FullLocalizedRecipe;
+  variant?: 'hero' | 'default' | 'compact' | 'list';
   lang?: Language;
   className?: string;
+  showNutrition?: boolean;
 }
 
 const {
   recipe,
   variant = 'default',
   lang = 'en',
+  className = '',
   showNutrition = false
-} = Astro.props as Props;
-
-function hasSlug(r: any): r is { slug: string | null } {
-  return typeof r.slug === 'string' || r.slug === null;
-}
+} = Astro.props;
 
 const t = useTranslations(lang);
-const recipeSlug = hasSlug(recipe) && recipe.slug ? recipe.slug : recipe.id;
+
+// Get slug - handle both RecipeCard and FullLocalizedRecipe
+const recipeSlug = 'slug' in recipe && recipe.slug ? recipe.slug : recipe.id;
 const fullLocalizedUrl = getRelativeLocaleUrl(lang, `/recipes/${recipeSlug}`);
 
-// Type guards
-const isFullRecipe = (r: RecipeCard | FullRecipe): r is FullRecipe =>
-  'nutrition' in r || 'ingredients' in r || 'rating_count' in r;
+// Type guard to check if it's a FullLocalizedRecipe
+const isFullLocalizedRecipe = (r: RecipeCardType | FullLocalizedRecipe): r is FullLocalizedRecipe => {
+  return 'nutrition' in r && 'ingredients' in r && 'steps' in r;
+};
 
-// Normalize fields
-const nutrition: RecipeNutrition | null =
-  isFullRecipe(recipe)
-    ? recipe.nutrition ?? null
-    : (recipe as any).recipe_nutrition?.[0] ?? null;
+// Get nutrition - handle both types
+const nutrition = isFullLocalizedRecipe(recipe) ? recipe.nutrition : null;
 
-const rating =
-  (isFullRecipe(recipe) ? recipe.rating : (recipe as any).rating) ??
-  (isFullRecipe(recipe) ? null : (recipe as any).avg_rating ?? null);
+// Get rating - RecipeCard has avg_rating, FullLocalizedRecipe doesn't have it yet
+const rating: number | null = 'avg_rating' in recipe
+  ? (typeof recipe.avg_rating === 'number' ? recipe.avg_rating : null)
+  : null;
+const ratingCount: number | null = 'rating_count' in recipe 
+  ? (typeof recipe.rating_count === 'number' ? recipe.rating_count : null) 
+  : null;
 
-const difficulty = (recipe as any).difficulty ?? null;
+// Get difficulty - may not exist on all types
+const difficulty = 'difficulty' in recipe ? recipe.difficulty : null;
 
-interface Props extends RecipeCardProps {
-  lang?: Language;
-  className?: string;
-}
+// Get tags - only exists on FullLocalizedRecipe
+const tags = isFullLocalizedRecipe(recipe) && recipe.tags ? recipe.tags : [];
 
 // Variant-specific styling
-// const cardClasses = {
-//   hero: 'col-span-full md:col-span-2 lg:col-span-3 py-0',
-//   default: 'hover:shadow-lg transition-shadow py-0',
-//   compact: 'max-w-sm py-0',
-//   list: 'flex-row items-center',
-// };
 const cardClasses = {
   hero: 'col-span-full lg:col-span-2',
   default: 'hover:shadow-lg transition-shadow',
@@ -61,29 +59,15 @@ const cardClasses = {
   list: 'flex flex-row',
 };
 
-
-// const imageClasses = {
-//   hero: 'h-96 object-cover',
-//   default: 'h-48 object-cover',
-//   compact: 'h-32 object-cover',
-//   list: 'h-24 w-24 object-cover shrink-0',
-// };
 const imageClasses = {
   hero: 'h-64 md:h-96',
   default: 'h-48',
   compact: 'h-32',
   list: 'w-32 h-full',
 };
-
-// const contentClasses = {
-//   hero: 'p-6',
-//   default: 'p-4',
-//   compact: 'p-3',
-//   list: 'flex-1 p-4',
-// };
 ---
 
-<Card className={`overflow-hidden ${cardClasses[variant]} ${Astro.props.className ?? ''}`}>
+<Card className={`overflow-hidden ${cardClasses[variant]} ${className}`}>
   <a href={fullLocalizedUrl}
    class="block group"
    aria-label={`${t.common.view} ${recipe.title}`}>
@@ -106,8 +90,8 @@ const imageClasses = {
             </span>
           )}
           {difficulty && (
-            <span class={`px-2 py-1 text-xs font-semibold bg-white/90 rounded ${getDifficultyColor(difficulty)}`}>
-              {t.filters.difficultyOptions[difficulty as keyof typeof t.filters.difficultyOptions]}
+            <span class={`px-2 py-1 text-xs font-semibold bg-white/90 rounded ${typeof difficulty === 'string' ? getDifficultyColor(difficulty) : ''}`}>
+              {t.filters.difficultyOptions[difficulty as keyof typeof t.filters.difficultyOptions] || difficulty}
             </span>
           )}
         </div>
@@ -156,12 +140,12 @@ const imageClasses = {
             </div>
           )}
           
-          {rating && (
+          {rating !== null && rating !== undefined && typeof rating === 'number' && (
             <div class="flex items-center gap-1">
               <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
               <span>{formatRating(rating)}</span>
-              {isFullRecipe(recipe) && recipe.rating_count && (
-                <span class="text-xs">({recipe.rating_count})</span>
+              {ratingCount !== null && ratingCount !== undefined && ratingCount > 0 && (
+                <span class="text-xs">({ratingCount})</span>
               )}
             </div>
           )}
@@ -199,9 +183,9 @@ const imageClasses = {
       </CardContent>
 
       <!-- Tags (Hero variant) -->
-      {variant === 'hero' && recipe.tags && recipe.tags.length > 0 && (
+      {variant === 'hero' && tags.length > 0 && (
         <CardFooter className="p-0 pt-3 flex-wrap gap-2">
-          {recipe.tags.slice(0, 5).map((tag) => (
+          {tags.slice(0, 5).map((tag) => (
             <span class="px-2 py-1 text-xs bg-primary/10 text-primary rounded-full">
               {tag.name}
             </span>

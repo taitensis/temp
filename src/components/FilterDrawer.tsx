@@ -9,7 +9,7 @@ import {
   DrawerFooter,
   DrawerClose,
 } from '@/components/ui/drawer';
-import { SlidersHorizontal } from 'lucide-react';
+import { SlidersHorizontal, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -19,24 +19,101 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import type { Language, Difficulty } from '@/lib/types';
 
 interface FilterDrawerProps {
-  lang: 'fr' | 'en';
+  lang: Language;
   initialValues?: {
     search?: string;
-    difficulty?: string;
-    maxTime?: string;
+    difficulty?: Difficulty;
+    maxTime?: number;
     tags?: string[];
   };
+  categories?: Array<{ id: string; name: string }>;
+  tags?: Array<{ id: string; name: string }>;
 }
 
-export default function FilterDrawer({ lang, initialValues }: FilterDrawerProps) {
+// Translations object for React component
+const translations = {
+  en: {
+    trigger: 'Filter Recipes',
+    title: 'Filter Options',
+    description: 'Refine your recipe search.',
+    apply: 'Apply Filters',
+    searchPlaceholder: 'Recipe name or ingredient...',
+    difficultyLabel: 'Difficulty',
+    timeLabel: 'Max Time (minutes)',
+    tagsLabel: 'Tags & Categories',
+    minutes: 'minutes',
+    difficulties: {
+      easy: 'Easy',
+      medium: 'Medium',
+      hard: 'Hard',
+    },
+  },
+  fr: {
+    trigger: 'Filtrer les Recettes',
+    title: 'Options de Filtrage',
+    description: 'Affinez votre recherche de recettes.',
+    apply: 'Appliquer les Filtres',
+    searchPlaceholder: 'Nom de la recette ou ingrédient...',
+    difficultyLabel: 'Difficulté',
+    timeLabel: 'Temps Max. (minutes)',
+    tagsLabel: 'Tags & Catégories',
+    minutes: 'minutes',
+    difficulties: {
+      easy: 'Facile',
+      medium: 'Moyen',
+      hard: 'Difficile',
+    },
+  },
+  es: {
+    trigger: 'Filtrar Recetas',
+    title: 'Opciones de Filtrado',
+    description: 'Refina tu búsqueda de recetas.',
+    apply: 'Aplicar Filtros',
+    searchPlaceholder: 'Nombre de receta o ingrediente...',
+    difficultyLabel: 'Dificultad',
+    timeLabel: 'Tiempo Máx. (minutos)',
+    tagsLabel: 'Etiquetas y Categorías',
+    minutes: 'minutos',
+    difficulties: {
+      easy: 'Fácil',
+      medium: 'Medio',
+      hard: 'Difícil',
+    },
+  },
+  nl: {
+    trigger: 'Filter Recepten',
+    title: 'Filteropties',
+    description: 'Verfijn je receptzoektocht.',
+    apply: 'Filters Toepassen',
+    searchPlaceholder: 'Receptnaam of ingrediënt...',
+    difficultyLabel: 'Moeilijkheidsgraad',
+    timeLabel: 'Max. Tijd (minuten)',
+    tagsLabel: 'Tags & Categorieën',
+    minutes: 'minuten',
+    difficulties: {
+      easy: 'Makkelijk',
+      medium: 'Gemiddeld',
+      hard: 'Moeilijk',
+    },
+  },
+};
+
+export default function FilterDrawer({
+  lang,
+  initialValues,
+  categories = [],
+  tags = [],
+}: FilterDrawerProps) {
+  const t = translations[lang] || translations.en;
+
   const [filters, setFilters] = useState({
     search: initialValues?.search || '',
     difficulty: initialValues?.difficulty || '',
-    maxTime: initialValues?.maxTime || '',
+    maxTime: initialValues?.maxTime?.toString() || '',
     tags: initialValues?.tags || ([] as string[]),
   });
 
@@ -75,31 +152,10 @@ export default function FilterDrawer({ lang, initialValues }: FilterDrawerProps)
     }));
   };
 
-  const t = {
-    trigger: lang === 'fr' ? 'Filtrer les Recettes' : 'Filter Recipes',
-    title: lang === 'fr' ? 'Options de Filtrage' : 'Filter Options',
-    description:
-      lang === 'fr' ? 'Affinez votre recherche de recettes.' : 'Refine your recipe search.',
-    apply: lang === 'fr' ? 'Appliquer les Filtres' : 'Apply Filters',
-    searchPlaceholder:
-      lang === 'fr' ? 'Nom de la recette ou ingrédient...' : 'Recipe name or ingredient...',
-    difficultyLabel: lang === 'fr' ? 'Difficulté' : 'Difficulty',
-    timeLabel: lang === 'fr' ? 'Temps Max. (minutes)' : 'Max Time (minutes)',
-    tagsLabel: lang === 'fr' ? 'Tags & Catégories' : 'Tags & Categories',
-  };
-
-  const tags = [
-    { id: '1', name: lang === 'fr' ? 'Végétarien' : 'Vegetarian' },
-    { id: '2', name: lang === 'fr' ? 'Sans Gluten' : 'Gluten-Free' },
-    { id: '3', name: lang === 'fr' ? 'Rapide' : 'Quick' },
-    { id: '4', name: lang === 'fr' ? 'Dessert' : 'Dessert' },
-    { id: '5', name: lang === 'fr' ? 'Plat Principal' : 'Main Dish' },
-  ];
-
-  const difficulties = [
-    { value: 'easy', label: lang === 'fr' ? 'Facile' : 'Easy' },
-    { value: 'medium', label: lang === 'fr' ? 'Moyen' : 'Medium' },
-    { value: 'hard', label: lang === 'fr' ? 'Difficile' : 'Hard' },
+  const difficulties: Array<{ value: Difficulty; label: string }> = [
+    { value: 'easy', label: t.difficulties.easy },
+    { value: 'medium', label: t.difficulties.medium },
+    { value: 'hard', label: t.difficulties.hard },
   ];
 
   return (
@@ -113,7 +169,7 @@ export default function FilterDrawer({ lang, initialValues }: FilterDrawerProps)
         </DrawerTrigger>
 
         <DrawerContent>
-          <div className="mx-auto w-full max-w-sm overflow-y-auto">
+          <div className="mx-auto w-full max-w-sm overflow-y-auto max-h-[80vh]">
             <DrawerHeader>
               <DrawerTitle>{t.title}</DrawerTitle>
               <DrawerDescription>{t.description}</DrawerDescription>
@@ -172,37 +228,37 @@ export default function FilterDrawer({ lang, initialValues }: FilterDrawerProps)
                       value={filters.maxTime}
                       onChange={(e) => handleInputChange('maxTime', e.target.value)}
                     />
-                    <span className="text-sm text-muted-foreground">
-                      {lang === 'fr' ? 'minutes' : 'minutes'}
-                    </span>
+                    <span className="text-sm text-muted-foreground">{t.minutes}</span>
                   </div>
                 </div>
 
                 {/* Tags */}
-                <div className="space-y-3">
-                  <Label>{t.tagsLabel}</Label>
-                  <div className="flex flex-col space-y-2 max-h-52 overflow-y-auto pr-2">
-                    {tags.map((tag) => (
-                      <div key={tag.id} className="flex items-center space-x-3">
-                        <input
-                          type="checkbox"
-                          id={`drawer-tag-${tag.id}`}
-                          name="tags"
-                          value={tag.id}
-                          checked={filters.tags.includes(tag.id)}
-                          onChange={(e) => handleTagChange(tag.id, e.target.checked)}
-                          className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                        />
-                        <Label
-                          htmlFor={`drawer-tag-${tag.id}`}
-                          className="font-normal cursor-pointer"
-                        >
-                          {tag.name}
-                        </Label>
-                      </div>
-                    ))}
+                {tags.length > 0 && (
+                  <div className="space-y-3">
+                    <Label>{t.tagsLabel}</Label>
+                    <div className="flex flex-col space-y-2 max-h-52 overflow-y-auto pr-2">
+                      {tags.map((tag) => (
+                        <div key={tag.id} className="flex items-center space-x-3">
+                          <input
+                            type="checkbox"
+                            id={`drawer-tag-${tag.id}`}
+                            name="tags"
+                            value={tag.id}
+                            checked={filters.tags.includes(tag.id)}
+                            onChange={(e) => handleTagChange(tag.id, e.target.checked)}
+                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                          />
+                          <Label
+                            htmlFor={`drawer-tag-${tag.id}`}
+                            className="font-normal cursor-pointer"
+                          >
+                            {tag.name}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
 

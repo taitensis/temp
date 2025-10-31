@@ -1,6 +1,6 @@
 import type { Tables } from './database.type';
 
-export type Language = 'fr' | 'en';
+export type Language = 'en' | 'es' | 'fr' | 'nl';
 
 export type Season = 'spring' | 'summer' | 'autumn' | 'winter';
 
@@ -27,7 +27,7 @@ export type ApiResult<T> = { success: true; data: T } | { success: false; error:
 
 export interface RecipeTranslation {
   id: string;
-  recipe_id: string;
+  recipe_id: string | null;
   lang: Language;
   title: string;
   description: string | null;
@@ -35,16 +35,16 @@ export interface RecipeTranslation {
 
 export interface RecipeStep {
   id: string;
-  recipe_id: string;
+  recipe_id: string | null;
   position: number;
   instruction: string;
   note: string | null;
-  created_at: string;
+  created_at: string | null;
 }
 
 export interface RecipeStepTranslation {
   id: string;
-  recipe_step_id: string;
+  recipe_step_id: string | null;
   lang: Language;
   instruction: string;
 }
@@ -52,31 +52,31 @@ export interface RecipeStepTranslation {
 export interface Ingredient {
   id: string;
   name: string;
-  created_at: string;
+  created_at: string | null;
 }
 
 export interface IngredientTranslation {
   id: string;
-  ingredient_id: string;
+  ingredient_id: string | null;
   lang: Language;
   name: string;
 }
 
 export interface RecipeIngredient {
   id: string;
-  recipe_id: string;
-  ingredient_id: string;
+  recipe_id: string | null;
+  ingredient_id: string | null;
   quantity: number | null;
   unit: string | null;
   note: string | null;
   section: string | null;
   position: number | null;
-  created_at: string;
+  created_at: string | null;
 }
 
 export interface RecipeNutrition {
   id: string;
-  recipe_id: string;
+  recipe_id: string | null;
   calories: number | null;
   protein: number | null;
   carbs: number | null;
@@ -88,41 +88,41 @@ export interface RecipeNutrition {
   fiber: number | null;
   sugar: number | null;
   sodium: number | null;
-  created_at: string;
+  created_at: string | null;
 }
 
 export interface Tag {
   id: string;
   name: string;
-  created_at: string;
+  created_at: string | null;
 }
 
 export interface TagTranslation {
   id: string;
-  tag_id: string;
+  tag_id: string | null;
   lang: Language;
   name: string;
 }
 
 export interface RecipeTag {
   id: string;
-  recipe_id: string;
-  tag_id: string;
-  created_at: string;
+  recipe_id: string | null;
+  tag_id: string | null;
+  created_at: string | null;
 }
 
 export interface Time {
   id: string;
   name: string | null;
-  created_at: string;
+  created_at: string | null;
 }
 
 export interface RecipeTime {
   id: string;
-  recipe_id: string;
-  times_id: string;
+  recipe_id: string | null;
+  times_id: string | null;
   minutes: number;
-  created_at: string;
+  created_at: string | null;
 }
 
 export interface FullRecipe extends Recipe {
@@ -152,18 +152,19 @@ export interface RecipeTimeWithDetails extends RecipeTime {
   time?: Time;
 }
 
+// Fixed RecipeCard type to match actual data structure
 export type RecipeCard = {
   id: string;
   slug: string;
   title: string;
+  description: string | null;
+  image_url: string | null;
   season: string[] | null;
   total_time: number | null;
   featured: boolean | null;
-  calories?: number | null;
-  protein?: number | null;
-  description: string | null;
-  image_url: string;
   servings: number | null;
+  calories: number | null;
+  protein: number | null;
   tags?: Pick<Tag, 'id' | 'name'>[];
 };
 
@@ -209,12 +210,12 @@ export interface RecipeFilters {
   tags?: string[];
   categories?: string[];
   difficulty?: Difficulty;
-  minRating?: number; // NEW
+  minRating?: number;
   maxTime?: number;
-  minTime?: number; // NEW
+  minTime?: number;
   search?: string;
   lang?: Language;
-  sortBy?: 'newest' | 'popular' | 'rating' | 'quickest'; // NEW
+  sortBy?: 'newest' | 'popular' | 'rating' | 'quickest';
 }
 
 export interface PaginationParams {
@@ -269,11 +270,11 @@ export interface RecipePathData {
 export interface FullLocalizedRecipe {
   id: string;
   slug: string;
-  image_url: string;
+  image_url: string | null;
   servings: number | null;
   serving_type: string | null;
   total_time: number | null;
-  featured: boolean;
+  featured: boolean | null;
 
   lang: Language;
   title: string;

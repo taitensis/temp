@@ -9,7 +9,7 @@ import type { Language } from './types';
 
 const CONFIG = {
   base: '/nourriture-quotidienne',
-  locales: ['en', 'fr'] as const,
+  locales: ['en', 'es', 'fr', 'nl'] as const,
   defaultLocale: 'en' as Language,
 } as const;
 

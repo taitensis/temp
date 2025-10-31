@@ -1,9 +1,7 @@
-// REPLACE ENTIRE FILE with proper i18n system:
-
 import type { Language } from './types';
 
-export const languages = ['en', 'fr'] as const;
-export const defaultLang: Language = 'fr';
+export const languages = ['en', 'es', 'fr', 'nl'] as const;
+export const defaultLang: Language = 'en';
 
 export const translations = {
   en: {
@@ -218,6 +216,220 @@ export const translations = {
       backHome: "Retour à l'accueil",
     },
   },
+  es: {
+    // Spanish translations - copy from en for now, translate later
+    common: {
+      search: 'Buscar',
+      loading: 'Cargando...',
+      error: 'Ocurrió un error',
+      noResults: 'No se encontraron resultados',
+      viewMore: 'Ver más',
+      share: 'Compartir',
+      print: 'Imprimir',
+      save: 'Guardar',
+      saved: 'Guardado',
+      remove: 'Eliminar',
+      view: 'Vista',
+    },
+    site: {
+      name: 'Mis Recetas Favoritas',
+      tagline: 'Descubre deliciosas recetas caseras',
+      copyright: 'Todos los derechos reservados',
+      madeWith: 'Hecho con Astro y Supabase',
+    },
+    nav: {
+      home: 'Inicio',
+      recipes: 'Recetas',
+      categories: 'Categorías',
+      seasonal: 'Estacional',
+      about: 'Acerca de',
+      profile: 'Perfil',
+      login: 'Iniciar sesión',
+      logout: 'Cerrar sesión',
+    },
+    filters: {
+      title: 'Filtros',
+      search: 'Buscar recetas...',
+      difficulty: 'Dificultad',
+      difficultyOptions: {
+        all: 'Todas las dificultades',
+        easy: 'Fácil',
+        medium: 'Medio',
+        hard: 'Difícil',
+      },
+      time: 'Tiempo de cocción',
+      maxTime: 'Tiempo máximo (minutos)',
+      categories: 'Categorías',
+      tags: 'Etiquetas',
+      season: 'Temporada',
+      seasonOptions: {
+        all: 'Todas las temporadas',
+        spring: 'Primavera',
+        summer: 'Verano',
+        autumn: 'Otoño',
+        winter: 'Invierno',
+      },
+      rating: 'Calificación mínima',
+      sortBy: 'Ordenar por',
+      sortOptions: {
+        newest: 'Más reciente',
+        popular: 'Más popular',
+        rating: 'Mejor calificado',
+        quickest: 'Más rápido',
+      },
+      apply: 'Aplicar filtros',
+      reset: 'Restablecer',
+    },
+    recipe: {
+      servings: 'porciones',
+      serving: 'porción',
+      prepTime: 'Preparación',
+      cookTime: 'Cocción',
+      totalTime: 'Total',
+      difficulty: 'Dificultad',
+      ingredients: 'Ingredientes',
+      instructions: 'Instrucciones',
+      nutrition: 'Nutrición por porción',
+      nutritionFacts: {
+        calories: 'Calorías',
+        protein: 'Proteína',
+        carbs: 'Carbohidratos',
+        fat: 'Grasa',
+        fiber: 'Fibra',
+        sugar: 'Azúcar',
+        sodium: 'Sodio',
+      },
+      tips: 'Consejos y Notas',
+      source: 'Fuente',
+      video: 'Ver video',
+      rating: 'Calificación',
+      reviews: 'reseñas',
+      addReview: 'Añadir reseña',
+    },
+    footer: {
+      quickLinks: 'Enlaces Rápidos',
+      legal: 'Legal',
+      contact: 'Contacto',
+      terms: 'Términos de Servicio',
+      privacy: 'Privacidad',
+      followUs: 'Síguenos',
+    },
+    errors: {
+      notFound: 'Página no encontrada',
+      recipeNotFound: 'Receta no encontrada',
+      serverError: 'Error del servidor',
+      networkError: 'Error de red',
+      tryAgain: 'Intentar de nuevo',
+      backHome: 'Volver al inicio',
+    },
+  },
+  nl: {
+    // Dutch translations - copy from en for now, translate later
+    common: {
+      search: 'Zoeken',
+      loading: 'Laden...',
+      error: 'Er is een fout opgetreden',
+      noResults: 'Geen resultaten gevonden',
+      viewMore: 'Meer bekijken',
+      share: 'Delen',
+      print: 'Afdrukken',
+      save: 'Opslaan',
+      saved: 'Opgeslagen',
+      remove: 'Verwijderen',
+      view: 'Weergave',
+    },
+    site: {
+      name: 'Mijn Favoriete Recepten',
+      tagline: 'Ontdek heerlijke huisgemaakte recepten',
+      copyright: 'Alle rechten voorbehouden',
+      madeWith: 'Gemaakt met Astro en Supabase',
+    },
+    nav: {
+      home: 'Home',
+      recipes: 'Recepten',
+      categories: 'Categorieën',
+      seasonal: 'Seizoensgebonden',
+      about: 'Over',
+      profile: 'Profiel',
+      login: 'Inloggen',
+      logout: 'Uitloggen',
+    },
+    filters: {
+      title: 'Filters',
+      search: 'Recepten zoeken...',
+      difficulty: 'Moeilijkheidsgraad',
+      difficultyOptions: {
+        all: 'Alle moeilijkheidsgraden',
+        easy: 'Gemakkelijk',
+        medium: 'Gemiddeld',
+        hard: 'Moeilijk',
+      },
+      time: 'Kooktijd',
+      maxTime: 'Maximale tijd (minuten)',
+      categories: 'Categorieën',
+      tags: 'Tags',
+      season: 'Seizoen',
+      seasonOptions: {
+        all: 'Alle seizoenen',
+        spring: 'Lente',
+        summer: 'Zomer',
+        autumn: 'Herfst',
+        winter: 'Winter',
+      },
+      rating: 'Minimale beoordeling',
+      sortBy: 'Sorteren op',
+      sortOptions: {
+        newest: 'Nieuwste',
+        popular: 'Populairste',
+        rating: 'Best beoordeeld',
+        quickest: 'Snelste',
+      },
+      apply: 'Filters toepassen',
+      reset: 'Resetten',
+    },
+    recipe: {
+      servings: 'porties',
+      serving: 'portie',
+      prepTime: 'Voorbereiding',
+      cookTime: 'Koken',
+      totalTime: 'Totaal',
+      difficulty: 'Moeilijkheidsgraad',
+      ingredients: 'Ingrediënten',
+      instructions: 'Instructies',
+      nutrition: 'Voeding per portie',
+      nutritionFacts: {
+        calories: 'Calorieën',
+        protein: 'Eiwit',
+        carbs: 'Koolhydraten',
+        fat: 'Vet',
+        fiber: 'Vezels',
+        sugar: 'Suiker',
+        sodium: 'Natrium',
+      },
+      tips: 'Tips & Notities',
+      source: 'Bron',
+      video: 'Video bekijken',
+      rating: 'Beoordeling',
+      reviews: 'recensies',
+      addReview: 'Recensie toevoegen',
+    },
+    footer: {
+      quickLinks: 'Snelle Links',
+      legal: 'Juridisch',
+      contact: 'Contact',
+      terms: 'Servicevoorwaarden',
+      privacy: 'Privacy',
+      followUs: 'Volg ons',
+    },
+    errors: {
+      notFound: 'Pagina niet gevonden',
+      recipeNotFound: 'Recept niet gevonden',
+      serverError: 'Serverfout',
+      networkError: 'Netwerkfout',
+      tryAgain: 'Probeer opnieuw',
+      backHome: 'Terug naar home',
+    },
+  },
 } as const;
 
 export type TranslationKey = keyof typeof translations.en;
@@ -248,11 +460,13 @@ export function t(lang: Language, path: string): string {
 // Helper for components
 export function getLocalizedUrl(lang: Language, path: string): string {
   // Remove any existing language prefix
-  const cleanPath = path.replace(/^\/(en|fr)/, '');
+  const cleanPath = path.replace(/^\/(en|es|fr|nl)/, '');
   return `/${lang}${cleanPath}`;
 }
 
-// Get alternate language
+// Get alternate language (cycles through available languages)
 export function getAltLang(currentLang: Language): Language {
-  return currentLang === 'en' ? 'fr' : 'en';
+  const currentIndex = languages.indexOf(currentLang);
+  const nextIndex = (currentIndex + 1) % languages.length;
+  return languages[nextIndex];
 }
