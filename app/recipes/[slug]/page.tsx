@@ -32,7 +32,7 @@ export default async function RecipePage({
         </div>
       </section>
 
-      <section className="w-full py-12 md:py-20">
+      <article className="w-full py-12 md:py-20">
         <div className="container max-w-6xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
             <aside className="lg:col-span-4">
@@ -53,7 +53,7 @@ export default async function RecipePage({
             </div>
           </div>
         </div>
-      </section>
+      </article>
     </>
   );
 }

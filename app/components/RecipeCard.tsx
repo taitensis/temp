@@ -48,13 +48,12 @@ export default function RecipeCard({
         </CardContent>
 
         <CardFooter className="pt-0">
-          <span className="text-sm font-medium text-primary group-hover:underline underline-offset-4">
+          <span className="text-sm font-medium text-primary group-hover:underline underline-offset-4 flex items-center gap-1">
             View Recipe
-          </span>
-          <span className="text-sm font-medium text-primary group-hover:underline underline-offset-4">
             <ArrowForwardIcon
               fontSize="small"
-              className="text-sm font-medium text-primary group-hover:underline underline-offset-4"
+              aria-hidden="true"
+              className="text-sm transition-opacity duration-300 opacity-0 group-hover:opacity-100"
             />
           </span>
         </CardFooter>

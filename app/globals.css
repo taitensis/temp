@@ -182,18 +182,18 @@
   --background: oklch(15% 0.02 340);
 }
 
-/* --- ÉTÉ (Vibrant / Vert) --- */
+/* --- ÉTÉ (Vibrant / Indigo) --- */
 .light-summer {
-  --primary: oklch(45% 0.14 270); /* Vert Bambou */
+  --primary: oklch(30% 0.15 270);
   --primary-foreground: oklch(98% 0 0);
-  --ring: oklch(45% 0.14 270);
+  --ring: oklch(30% 0.13 270);
   --background: oklch(99% 0.005 260);
   --muted: oklch(96% 0.02 260);
 }
 
 .dark-summer {
   --primary: oklch(60% 0.14 270);
-  --primary-foreground: oklch(13% 0.02 270);
+  --primary-foreground: oklch(98% 0 0);
   --background: oklch(14% 0.03 270);
 }
 
